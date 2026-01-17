@@ -5,3 +5,4 @@ stages:
 include:
   - local: ".gitlab/ci/frontend-test.yml"
   - local: ".gitlab/ci/frontend-sonar.yml"
+  - local: ".gitlab/ci/renovate.yml"
