@@ -4,7 +4,7 @@ frontend-test:
   tags:
     - coolify
   before_script:
-    - cd frontend
+    - cd chatbot-web
     - corepack enable
     - corepack prepare pnpm@9.15.0 --activate
     - pnpm install --frozen-lockfile
@@ -12,7 +12,7 @@ frontend-test:
     - pnpm test:coverage
   artifacts:
     paths:
-      - frontend/coverage
+      - chatbot-web/coverage
     when: always
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
