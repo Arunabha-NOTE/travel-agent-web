@@ -1,0 +1,18 @@
+frontend-test:
+  stage: test
+  image: node:22-alpine
+  tags:
+    - coolify
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@9.15.0 --activate
+    - pnpm install --frozen-lockfile
+  script:
+    - pnpm test:coverage
+  artifacts:
+    paths:
+      - coverage
+    when: always
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"

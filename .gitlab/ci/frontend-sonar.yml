@@ -1,0 +1,37 @@
+sonarcloud-frontend:
+  stage: analysis
+  image: debian:bookworm-slim
+  tags:
+    - coolify
+  variables:
+    SONAR_USER_HOME: "$CI_PROJECT_DIR/.sonar"
+    GIT_DEPTH: "0"
+  cache:
+    key: sonar-frontend
+    paths:
+      - .sonar/cache
+  before_script:
+    # --- Base (same as backend) ---
+    - apt-get update
+    - apt-get install -y curl unzip openjdk-17-jre ca-certificates
+    - update-ca-certificates
+
+    # --- ADD: Node.js for JS/TS analysis ---
+    - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    - apt-get install -y nodejs
+    - node -v
+
+    # --- Sonar Scanner (ARM64, bundled JRE) ---
+    - curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-8.0.1.6346-linux-aarch64.zip
+    - unzip sonar-scanner.zip
+    - mv sonar-scanner-* sonar-scanner
+    - export PATH="$PWD/sonar-scanner/bin:$PATH"
+
+    # --- Sanity checks ---
+    - java -version
+    - sonar-scanner --version
+  script:
+    - sonar-scanner
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH == "main"
