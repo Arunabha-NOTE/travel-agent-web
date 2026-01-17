@@ -21,8 +21,7 @@ sonarcloud-frontend:
     - node -v
 
     # --- Sonar Scanner (ARM64, bundled JRE) ---
-    - curl -L -o sonar-scanner.zip \
-        https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-8.0.1.6346-linux-aarch64.zip
+    - curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-8.0.1.6346-linux-aarch64.zip
     - unzip sonar-scanner.zip
     - mv sonar-scanner-* sonar-scanner
     - export PATH="$PWD/sonar-scanner/bin:$PATH"
