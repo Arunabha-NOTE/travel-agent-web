@@ -1,0 +1,8 @@
+{
+  "extends": ["config:recommended"],
+  "platform": "gitlab",
+  "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
+  "dependencyDashboard": true,
+  "rebaseWhen": "behind-base-branch",
+  "automergeStrategy": "squash"
+}
