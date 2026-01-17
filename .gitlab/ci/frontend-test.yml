@@ -1,10 +1,9 @@
 frontend-test:
   stage: test
-  image: node:20-alpine
+  image: node:22-alpine
   tags:
     - coolify
   before_script:
-    - cd chatbot-web
     - corepack enable
     - corepack prepare pnpm@9.15.0 --activate
     - pnpm install --frozen-lockfile
@@ -12,7 +11,7 @@ frontend-test:
     - pnpm test:coverage
   artifacts:
     paths:
-      - chatbot-web/coverage
+      - coverage
     when: always
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"

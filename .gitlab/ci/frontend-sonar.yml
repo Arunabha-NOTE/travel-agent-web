@@ -20,7 +20,6 @@ sonarcloud-frontend:
     - unzip sonar-scanner.zip
     - mv sonar-scanner-* sonar-scanner
     - export PATH="$PWD/sonar-scanner/bin:$PATH"
-    - cd frontend
   script:
     - sonar-scanner
   rules:
