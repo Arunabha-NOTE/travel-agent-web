@@ -1,6 +1,6 @@
 sonarcloud-frontend:
   stage: analysis
-  image: debian:bookworm-slim
+  image: node:20-alpine
   tags:
     - coolify
   dependencies:
@@ -13,9 +13,10 @@ sonarcloud-frontend:
     paths:
       - .sonar/cache
   before_script:
-    - apt-get update
-    - apt-get install -y curl unzip openjdk-17-jre ca-certificates
+    # Install Java (Sonar needs Java)
+    - apk add --no-cache openjdk17-jre curl unzip ca-certificates
     - update-ca-certificates
+    # Install Sonar Scanner
     - curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-8.0.1.6346-linux-aarch64.zip
     - unzip sonar-scanner.zip
     - mv sonar-scanner-* sonar-scanner
