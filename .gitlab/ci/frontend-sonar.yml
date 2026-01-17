@@ -17,7 +17,8 @@ sonarcloud-frontend:
     - update-ca-certificates
 
     # --- ADD: Node.js for JS/TS analysis ---
-    - apt-get install -y nodejs npm
+    - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    - apt-get install -y nodejs
     - node -v
 
     # --- Sonar Scanner (ARM64, bundled JRE) ---
