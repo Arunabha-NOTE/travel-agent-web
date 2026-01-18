@@ -1,7 +1,11 @@
 stages:
+  - lint
+  - build
   - test
   - analysis
 
 include:
+  - local: ".gitlab/ci/frontend-lint.yml"
+  - local: ".gitlab/ci/frontend-build.yml"
   - local: ".gitlab/ci/frontend-test.yml"
   - local: ".gitlab/ci/frontend-sonar.yml"

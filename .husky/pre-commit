@@ -1,1 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
+echo "🔍 Running Biome format..."
+pnpm run format
+
+echo "🔎 Running Biome lint..."
+pnpm run lint
