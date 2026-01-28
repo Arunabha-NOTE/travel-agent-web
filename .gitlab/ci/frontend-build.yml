@@ -1,6 +1,6 @@
 frontend-build:
   stage: build
-  image: node:20-alpine
+  image: node:24-alpine
   rules:
     - if: $CI_MERGE_REQUEST_IID
     - if: $CI_COMMIT_BRANCH == "main"
