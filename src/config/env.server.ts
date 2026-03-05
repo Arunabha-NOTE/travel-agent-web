@@ -6,16 +6,14 @@ import { z } from "zod";
 //   SENTRY_AUTH_TOKEN: z.string().min(1),
 //   BACKEND_URL: z.string().url(),
 const ServerEnvSchema = z.object({
-  // SENTRY_AUTH_TOKEN: z.string().min(1),
-  // BACKEND_URL: z.string().url(),
+  BACKEND_URL: z.string().url().default("http://localhost:8000"),
 });
 
 type ServerEnv = z.infer<typeof ServerEnvSchema>;
 
 function readServerEnv(): ServerEnv {
   const raw = {
-    // SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
-    // BACKEND_URL: process.env.BACKEND_URL,
+    BACKEND_URL: process.env.BACKEND_URL,
   };
 
   const parsed = ServerEnvSchema.safeParse(raw);

@@ -15,6 +15,14 @@ Travel agent chatbot frontend: a Next.js chat interface for holiday and travel p
 3. Configure environment (set API base URL, Sentry, etc.):
    - Copy `.env.example` to `.env` if provided, or create `.env` matching your backend endpoints and keys.
 
+Required variables:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+NEXT_PUBLIC_ACCESS_TOKEN_COOKIE=chatbot_access_token
+BACKEND_URL=http://localhost:8000
+```
+
 ## Run in Development
 
 Start the Next.js dev server:
