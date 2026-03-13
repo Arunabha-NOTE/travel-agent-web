@@ -1,6 +1,6 @@
 frontend-test:
   stage: test
-  image: node:22-alpine
+  image: node:24-alpine
   tags:
     - coolify
   before_script:
