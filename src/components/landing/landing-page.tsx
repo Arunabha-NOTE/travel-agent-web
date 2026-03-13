@@ -1,12 +1,13 @@
 "use client";
 
-import { PlaneTakeoff } from "lucide-react";
+import { Icons } from "@/components/icons/icon";
 
 import { LandingHero } from "@/components/landing/landing-hero";
 import { LandingNavbar } from "@/components/landing/landing-navbar";
-import { useBackendHealthQuery } from "@/lib/queries/auth.queries";
+import { useBackendHealthQuery } from "@/lib/query";
 
 export function LandingPage() {
+  const { PlaneTakeoff } = Icons;
   const healthQuery = useBackendHealthQuery();
   const isOnline =
     !healthQuery.isLoading &&

@@ -1,9 +1,11 @@
-import { PlaneTakeoff } from "lucide-react";
 import Link from "next/link";
 
+import { Icons } from "@/components/icons/icon";
 import { Button } from "@/components/ui/button";
 
 export function LandingNavbar() {
+  const { PlaneTakeoff } = Icons;
+
   return (
     <header className="fixed top-0 z-50 w-full border-b border-selection/60 bg-background-dark/70 backdrop-blur-xl">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">

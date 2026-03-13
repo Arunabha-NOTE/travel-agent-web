@@ -1,20 +1,9 @@
 "use client";
 
-import {
-  Loader2,
-  LogOut,
-  MessageSquare,
-  PencilLine,
-  PlaneTakeoff,
-  Plus,
-  Search,
-  Sparkles,
-  Trash2,
-  UserCircle2,
-} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { Icons } from "@/components/icons/icon";
 
 import {
   AlertDialog,
@@ -49,7 +38,7 @@ import {
   useLogoutMutation,
   useProfileQuery,
   useRenameChatMutation,
-} from "@/lib/queries/auth.queries";
+} from "@/lib/query";
 import { cn } from "@/lib/utils";
 
 type ChatWorkspaceProps = {
@@ -57,6 +46,19 @@ type ChatWorkspaceProps = {
 };
 
 export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
+  const {
+    Loader2,
+    LogOut,
+    MessageSquare,
+    PencilLine,
+    PlaneTakeoff,
+    Plus,
+    Search,
+    Sparkles,
+    Trash2,
+    UserCircle2,
+  } = Icons;
+
   const router = useRouter();
   const chatsQuery = useChatsQuery();
   const profileQuery = useProfileQuery();

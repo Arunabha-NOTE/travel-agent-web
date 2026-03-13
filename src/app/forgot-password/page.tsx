@@ -16,12 +16,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { getApiErrorMessage } from "@/lib/api/errors";
-import {
-  type ForgotPasswordFormValues,
-  forgotPasswordFormSchema,
-} from "@/lib/auth/auth-form-schemas";
-import { useForgotPasswordMutation } from "@/lib/queries/auth.queries";
+import { useForgotPasswordMutation } from "@/lib/query";
+import { forgotPasswordFormSchema } from "@/lib/schemas";
+import type { ForgotPasswordFormValues } from "@/lib/types";
+import { getApiErrorMessage } from "@/lib/utils/api-error";
 
 export default function ForgotPasswordPage() {
   const forgotPasswordMutation = useForgotPasswordMutation();

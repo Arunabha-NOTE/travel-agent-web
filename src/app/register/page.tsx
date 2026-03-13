@@ -18,12 +18,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { getApiErrorMessage } from "@/lib/api/errors";
-import {
-  type RegisterFormValues,
-  registerFormSchema,
-} from "@/lib/auth/auth-form-schemas";
-import { useRegisterMutation } from "@/lib/queries/auth.queries";
+import { useRegisterMutation } from "@/lib/query";
+import { registerFormSchema } from "@/lib/schemas";
+import type { RegisterFormValues } from "@/lib/types";
+import { getApiErrorMessage } from "@/lib/utils/api-error";
 
 export default function RegisterPage() {
   const router = useRouter();

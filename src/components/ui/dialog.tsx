@@ -1,9 +1,9 @@
 "use client";
 
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
 import type * as React from "react";
 
+import { Icons } from "@/components/icons/icon";
 import { cn } from "@/lib/utils";
 
 function Dialog(props: React.ComponentProps<typeof DialogPrimitive.Root>) {
@@ -52,6 +52,8 @@ function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
 }) {
+  const { X } = Icons;
+
   return (
     <DialogPortal>
       <DialogOverlay />

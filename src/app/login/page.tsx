@@ -18,15 +18,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { parseApiError } from "@/lib/api/errors";
-import {
-  type LoginFormValues,
-  loginFormSchema,
-} from "@/lib/auth/auth-form-schemas";
-import {
-  useLoginMutation,
-  useLogoutMutation,
-} from "@/lib/queries/auth.queries";
+import { useLoginMutation, useLogoutMutation } from "@/lib/query";
+import { loginFormSchema } from "@/lib/schemas";
+import type { LoginFormValues } from "@/lib/types";
+import { parseApiError } from "@/lib/utils/api-error";
 
 export default function LoginPage() {
   const router = useRouter();

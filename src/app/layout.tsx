@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lexend } from "next/font/google";
 import { QueryProvider } from "@/providers/query-provider";
+import { ToastProvider } from "@/providers/toast-provider";
 import "./globals.css";
 
 const lexendSans = Lexend({
@@ -31,7 +32,10 @@ export default function RootLayout({
       <body
         className={`${lexendSans.variable} ${lexendMono.variable} antialiased`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          {children}
+          <ToastProvider />
+        </QueryProvider>
       </body>
     </html>
   );
