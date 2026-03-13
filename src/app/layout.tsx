@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Lexend } from "next/font/google";
 import { QueryProvider } from "@/providers/query-provider";
 import "./globals.css";
 
-const geistSans = Geist({
+const lexendSans = Lexend({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const lexendMono = Lexend({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Chatbot Web",
-  description: "Travel chatbot frontend with JWT session management",
+  title: "TravelAI — Your AI Travel Planning Assistant",
+  description:
+    "Plan personalized travel itineraries instantly with RAG-powered AI. Describe your trip and get a smart day-by-day plan in seconds.",
 };
 
 export default function RootLayout({
@@ -24,9 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dracula">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${lexendSans.variable} ${lexendMono.variable} antialiased`}
       >
         <QueryProvider>{children}</QueryProvider>
       </body>

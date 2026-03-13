@@ -1,26 +1,203 @@
-@import "tailwindcss";
+@import "../../node_modules/tailwindcss/index.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #282a36;
+  --current-line: #6272a4;
+  --selection: #44475a;
+  --foreground: #f8f8f2;
+  --comment: #6272a4;
+  --pink: #ff79c6;
+  --purple: #bd93f9;
+  --cyan: #8be9fd;
+  --green: #50fa7b;
+  --orange: #ffb86c;
+  --yellow: #f1fa8c;
+  --red: #ff5555;
+  --background-dark: var(--background);
+  --background-darker: var(--background);
+  --surface: var(--selection);
+  --surface-bright: var(--current-line);
+  --surface-elevated: rgba(68, 71, 90, 0.9);
+  --muted: var(--comment);
+  --border-subtle: rgba(98, 114, 164, 0.28);
+  --border-strong: rgba(139, 233, 253, 0.28);
+  --glow-pink: rgba(255, 121, 198, 0.24);
+  --glow-purple: rgba(189, 147, 249, 0.28);
+  --glow-cyan: rgba(139, 233, 253, 0.22);
+  --focus-ring: rgba(189, 147, 249, 0.45);
+  --success: #50fa7b;
+  --warning: #ffb86c;
+  --info: #8be9fd;
+  --danger: #ff5555;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-current-line: var(--current-line);
+  --color-background-dark: var(--background-dark);
+  --color-background-darker: var(--background-darker);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-bright: var(--surface-bright);
+  --color-comment: var(--comment);
+  --color-muted: var(--muted);
+  --color-selection: var(--selection);
+  --color-pink: var(--pink);
+  --color-purple: var(--purple);
+  --color-cyan: var(--cyan);
+  --color-green: var(--green);
+  --color-orange: var(--orange);
+  --color-yellow: var(--yellow);
+  --color-red: var(--red);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border-subtle);
+}
+
+html {
+  background: var(--background-darker);
 }
 
 body {
+  min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+/* ─── Keyframes ─── */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes border-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ─── Magic UI Utility Classes ─── */
+
+/* Accent text — flat solid Dracula cyan */
+.text-gradient-animate {
+  color: var(--cyan);
+}
+
+/* Grid background (Magic UI GridPattern style) */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(98, 114, 164, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(98, 114, 164, 0.14) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Radial fade mask — fades grid into the background at edges */
+.mask-radial-fade {
+  -webkit-mask-image: radial-gradient(
+    ellipse 85% 75% at 50% 0%,
+    black 55%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 85% 75% at 50% 0%,
+    black 55%,
+    transparent 100%
+  );
+}
+
+/* Magic Card — glowing border + lift on hover */
+.magic-card {
+  position: relative;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.magic-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 1px var(--glow-purple),
+    0 14px 40px rgba(25, 26, 33, 0.55),
+    0 0 80px var(--glow-cyan);
+}
+
+/* Flat border badge */
+.badge-gradient-border {
+  background: var(--background-dark);
+  border: 1px solid rgba(139, 233, 253, 0.35);
+}
+
+/* Ambient glow orbs */
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(72px);
+}
+
+.surface-panel {
+  border: 1px solid var(--border-subtle);
+  background: var(--background-dark);
+  box-shadow: 0 20px 60px rgba(25, 26, 33, 0.55);
+}
+
+.surface-hero {
+  background: var(--background-dark);
+}
+
+.auth-page-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.step-badge {
+  border: 1px solid var(--selection);
+  background: var(--surface);
+}
+
+.step-number {
+  color: var(--cyan);
+}
+
+/* Staggered fade-up entrance animations */
+.anim-fade-up {
+  opacity: 0;
+  animation: fade-up 0.65s ease both;
+}
+.anim-fade-up.delay-0 {
+  animation-delay: 0s;
+}
+.anim-fade-up.delay-1 {
+  animation-delay: 0.12s;
+}
+.anim-fade-up.delay-2 {
+  animation-delay: 0.24s;
+}
+.anim-fade-up.delay-3 {
+  animation-delay: 0.38s;
+}
+.anim-fade-up.delay-4 {
+  animation-delay: 0.52s;
+}
+.anim-fade-up.delay-5 {
+  animation-delay: 0.68s;
 }

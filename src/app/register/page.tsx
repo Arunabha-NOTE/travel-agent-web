@@ -18,81 +18,72 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { parseApiError } from "@/lib/api/errors";
+import { getApiErrorMessage } from "@/lib/api/errors";
 import {
-  type LoginFormValues,
-  loginFormSchema,
+  type RegisterFormValues,
+  registerFormSchema,
 } from "@/lib/auth/auth-form-schemas";
-import {
-  useLoginMutation,
-  useLogoutMutation,
-} from "@/lib/queries/auth.queries";
+import { useRegisterMutation } from "@/lib/queries/auth.queries";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
-  const loginMutation = useLoginMutation();
-  const logoutMutation = useLogoutMutation();
+  const registerMutation = useRegisterMutation();
   const [serverError, setServerError] = useState<string | null>(null);
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginFormSchema),
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerFormSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  async function onSubmit(values: LoginFormValues) {
+  async function onSubmit(values: RegisterFormValues) {
     setServerError(null);
 
     try {
-      await loginMutation.mutateAsync(values);
+      await registerMutation.mutateAsync({
+        email: values.email,
+        password: values.password,
+      });
       router.push("/chat");
     } catch (error) {
-      const parsed = parseApiError(error, "Unable to sign in. Try again.");
-
-      if (parsed.status === 401 || parsed.code === "UNAUTHORIZED") {
-        form.setError("password", {
-          type: "server",
-          message: parsed.message,
-        });
-      }
-
-      setServerError(parsed.message);
+      setServerError(
+        getApiErrorMessage(
+          error,
+          "Unable to create account. The email may already be in use.",
+        ),
+      );
     }
   }
 
   return (
     <AuthShell
-      eyebrow="Account access"
-      title="Pick up your trip plans where you left them."
-      description="Sign in to your TravelAI workspace to continue refining itineraries, chats, and saved travel ideas."
+      eyebrow="Create account"
+      title="Start building better itineraries in minutes."
+      description="Create your TravelAI account to unlock saved chats, editable plans, and a faster path from inspiration to itinerary."
       footer={
         <>
+          Already have an account?{" "}
           <Link
-            className="mr-4 underline-offset-4 hover:text-foreground hover:underline"
-            href="/forgot-password"
+            href="/login"
+            className="underline underline-offset-4 hover:text-foreground"
           >
-            Forgot password?
-          </Link>
-          <Link
-            className="underline-offset-4 hover:text-foreground hover:underline"
-            href="/register"
-          >
-            Create an account
+            Sign in
           </Link>
         </>
       }
     >
       <div className="mb-6 space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-purple">
-          Login
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan">
+          Register
         </p>
         <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-          Welcome back
+          Create your account
         </h2>
         <p className="text-sm leading-6 text-muted">
-          Sign in to receive your JWT access token and continue your travel
-          planning.
+          Use your email and a strong password to start planning personalized
+          trips.
         </p>
       </div>
 
@@ -119,7 +110,20 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <PasswordInput autoComplete="current-password" {...field} />
+                    <PasswordInput autoComplete="new-password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm password</FormLabel>
+                  <FormControl>
+                    <PasswordInput autoComplete="new-password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,28 +136,20 @@ export default function LoginPage() {
               </div>
             ) : null}
 
-            {loginMutation.isSuccess ? (
+            {registerMutation.isSuccess ? (
               <div className="rounded-xl border border-green/30 bg-green/10 px-4 py-3 text-sm text-green">
-                Login successful.
+                Account created successfully.
               </div>
             ) : null}
 
             <Button
               className="shimmer-btn w-full"
               type="submit"
-              disabled={loginMutation.isPending}
+              disabled={registerMutation.isPending}
             >
-              {loginMutation.isPending ? "Signing in..." : "Sign in"}
-            </Button>
-
-            <Button
-              className="w-full"
-              type="button"
-              variant="outline"
-              disabled={logoutMutation.isPending}
-              onClick={() => logoutMutation.mutate()}
-            >
-              {logoutMutation.isPending ? "Signing out..." : "Sign out"}
+              {registerMutation.isPending
+                ? "Creating account..."
+                : "Create account"}
             </Button>
           </form>
         </Form>

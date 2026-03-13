@@ -23,7 +23,7 @@ export function proxy(request: NextRequest) {
   }
 
   if (accessToken && isAuthRoute(pathname)) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/chat", request.url));
   }
 
   return NextResponse.next();
