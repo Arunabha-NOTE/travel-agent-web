@@ -8,12 +8,12 @@ import { TypingText } from "@/components/ui/typing-text";
 
 export function LandingHero() {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 pb-12">
+    <section className="relative flex min-h-[92vh] flex-col items-center justify-center overflow-hidden px-6 pt-20 pb-12">
       {/* Grid background */}
       <div className="absolute inset-0 bg-grid mask-radial-fade" />
 
       {/* Hero content */}
-      <div className="relative z-10 flex max-w-5xl flex-col items-center gap-4 text-center">
+      <div className="relative z-10 flex max-w-5xl flex-col items-center gap-6 text-center">
         <div className="relative flex min-h-[12rem] w-full items-center justify-center">
           <Globe className="top-1/2 z-0 -translate-y-[42%] opacity-60 [mask-image:radial-gradient(circle_at_center,black_0%,black_42%,transparent_74%)]" />
           <div className="pointer-events-none absolute inset-0" />
@@ -22,7 +22,7 @@ export function LandingHero() {
             <span className="block">Plan Your Perfect</span>
             <TypingText
               text="Travel Itinerary"
-              className="mt-0.5 block min-h-[1.05em] text-pink"
+              className="mt-0.5 block min-h-[1.05em] text-primary"
               speed={70}
               startDelay={350}
             />
@@ -30,7 +30,7 @@ export function LandingHero() {
         </div>
 
         {/* Subtitle */}
-        <p className="anim-fade-up delay-2 -mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+        <p className="anim-fade-up delay-2 -mt-8 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Describe your dream trip and get a personalized, day-by-day plan —
           powered by AI that retrieves real travel knowledge to craft
           unforgettable experiences.

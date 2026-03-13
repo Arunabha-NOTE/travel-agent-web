@@ -9,7 +9,7 @@ export function LandingNavbar() {
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         {/* Logo */}
         <Link href="/" className="group flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-pink">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary">
             <PlaneTakeoff aria-hidden="true" className="h-4 w-4 text-white" />
           </div>
           <span className="text-[15px] font-semibold tracking-tight text-white">

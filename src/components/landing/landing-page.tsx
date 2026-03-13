@@ -24,14 +24,14 @@ export function LandingPage() {
       : "bg-red";
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="bg-background text-foreground">
       <LandingNavbar />
       <LandingHero />
 
-      <footer className="border-t border-selection/80 px-6 py-8">
+      <footer className="border-t border-selection/80 px-6 py-4">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-pink">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary">
               <PlaneTakeoff aria-hidden="true" className="h-3 w-3 text-white" />
             </div>
             <span className="text-sm font-semibold text-foreground">

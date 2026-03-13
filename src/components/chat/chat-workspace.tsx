@@ -169,11 +169,11 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-40 border-b border-selection/60 bg-background-dark/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-3">
+    <main className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
+      <header className="sticky top-0 z-40 shrink-0 border-b border-selection/60 bg-background-dark/80 backdrop-blur-xl">
+        <div className="flex w-full items-center justify-between px-6 py-3">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-pink">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
               <PlaneTakeoff aria-hidden="true" className="h-4 w-4 text-white" />
             </div>
             <span className="text-sm font-semibold tracking-tight text-white">
@@ -190,9 +190,9 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-[1600px] px-4 py-4 md:px-6 md:py-6">
-        <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <aside className="surface-panel flex min-h-[calc(100vh-10rem)] flex-col overflow-hidden rounded-[1.75rem]">
+      <div className="min-h-0 flex-1 overflow-hidden px-4 py-4 md:px-6 md:py-6">
+        <div className="grid h-full min-h-0 gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <aside className="surface-panel flex h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem]">
             <div className="border-b border-selection/70 p-4">
               <Button
                 type="button"
@@ -257,7 +257,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
                       className={cn(
                         "group relative rounded-lg border px-3 py-2 transition-colors",
                         isActive
-                          ? "border-cyan/40 bg-cyan/10"
+                          ? "border-primary/45 bg-primary/12"
                           : "border-selection/40 bg-surface/10 hover:bg-surface/30",
                       )}
                     >
@@ -354,7 +354,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
             </div>
           </aside>
 
-          <section className="surface-panel flex min-h-[calc(100vh-10rem)] flex-col overflow-hidden rounded-[1.75rem]">
+          <section className="surface-panel flex h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem]">
             <div className="flex h-full flex-col">
               {chatQuery.isLoading ? (
                 <div className="flex flex-1 items-center justify-center px-6">
@@ -405,8 +405,8 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
                               className={cn(
                                 "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
                                 isUser
-                                  ? "bg-cyan/20 text-cyan"
-                                  : "bg-pink/20 text-pink",
+                                  ? "bg-primary/20 text-primary"
+                                  : "bg-selection/60 text-primary",
                               )}
                             >
                               {isUser ? (
@@ -419,7 +419,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
                               className={cn(
                                 "flex-1 rounded-2xl px-4 py-3",
                                 isUser
-                                  ? "bg-cyan/10 text-foreground"
+                                  ? "bg-primary/12 text-foreground"
                                   : "bg-surface/30 text-foreground",
                               )}
                             >
@@ -455,18 +455,6 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
           </section>
         </div>
       </div>
-
-      <footer className="border-t border-selection/60 px-6 py-4">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between text-xs text-muted">
-          <div className="flex items-center gap-2">
-            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-pink">
-              <PlaneTakeoff aria-hidden="true" className="h-3 w-3 text-white" />
-            </div>
-            <span className="font-medium">TravelAI</span>
-          </div>
-          <p>© 2026 TravelAI. All rights reserved.</p>
-        </div>
-      </footer>
 
       <Dialog
         open={renameChatId !== null}

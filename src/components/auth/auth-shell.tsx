@@ -33,25 +33,7 @@ export function AuthShell({
               {description}
             </p>
           </div>
-          <div className="grid max-w-xl gap-4 text-sm text-muted sm:grid-cols-2">
-            <div className="surface-panel rounded-2xl p-4">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-pink">
-                Secure by default
-              </p>
-              <p>
-                Password-based auth with hashed credentials and token sessions.
-              </p>
-            </div>
-            <div className="surface-panel rounded-2xl p-4">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-cyan">
-                Fast onboarding
-              </p>
-              <p>
-                Move from landing page to account creation without extra
-                friction.
-              </p>
-            </div>
-          </div>
+
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-foreground"

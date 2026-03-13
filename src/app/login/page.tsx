@@ -90,10 +90,6 @@ export default function LoginPage() {
         <h2 className="text-3xl font-semibold tracking-tight text-foreground">
           Welcome back
         </h2>
-        <p className="text-sm leading-6 text-muted">
-          Sign in to receive your JWT access token and continue your travel
-          planning.
-        </p>
       </div>
 
       <div className="space-y-6">

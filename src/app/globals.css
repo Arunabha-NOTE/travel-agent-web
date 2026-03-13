@@ -1,34 +1,34 @@
 @import "../../node_modules/tailwindcss/index.css";
 
 :root {
-  --background: #282a36;
-  --current-line: #6272a4;
-  --selection: #44475a;
-  --foreground: #f8f8f2;
-  --comment: #6272a4;
-  --pink: #ff79c6;
-  --purple: #bd93f9;
-  --cyan: #8be9fd;
-  --green: #50fa7b;
-  --orange: #ffb86c;
-  --yellow: #f1fa8c;
-  --red: #ff5555;
+  --background: hsl(231 15% 18%);
+  --current-line: hsl(225 27% 51%);
+  --selection: hsl(232 14% 31%);
+  --foreground: hsl(60 30% 96%);
+  --comment: hsl(225 27% 51%);
+  --pink: hsl(326 100% 74%);
+  --purple: hsl(265 89% 78%);
+  --cyan: hsl(190 98% 77%);
+  --green: hsl(135 94% 65%);
+  --orange: hsl(31 100% 71%);
+  --yellow: hsl(65 92% 76%);
+  --red: hsl(0 100% 67%);
   --background-dark: var(--background);
   --background-darker: var(--background);
   --surface: var(--selection);
   --surface-bright: var(--current-line);
-  --surface-elevated: rgba(68, 71, 90, 0.9);
+  --surface-elevated: hsl(232 14% 31% / 0.9);
   --muted: var(--comment);
-  --border-subtle: rgba(98, 114, 164, 0.28);
-  --border-strong: rgba(139, 233, 253, 0.28);
-  --glow-pink: rgba(255, 121, 198, 0.24);
-  --glow-purple: rgba(189, 147, 249, 0.28);
-  --glow-cyan: rgba(139, 233, 253, 0.22);
-  --focus-ring: rgba(189, 147, 249, 0.45);
-  --success: #50fa7b;
-  --warning: #ffb86c;
-  --info: #8be9fd;
-  --danger: #ff5555;
+  --border-subtle: hsl(225 27% 51% / 0.28);
+  --border-strong: hsl(190 98% 77% / 0.28);
+  --glow-pink: hsl(326 100% 74% / 0.24);
+  --glow-purple: hsl(265 89% 78% / 0.28);
+  --glow-cyan: hsl(190 98% 77% / 0.22);
+  --focus-ring: hsl(265 89% 78% / 0.45);
+  --success: hsl(135 94% 65%);
+  --warning: hsl(31 100% 71%);
+  --info: hsl(190 98% 77%);
+  --danger: hsl(0 100% 67%);
 }
 
 @theme inline {
@@ -37,6 +37,8 @@
   --color-background-dark: var(--background-dark);
   --color-background-darker: var(--background-darker);
   --color-foreground: var(--foreground);
+  --color-primary: var(--purple);
+  --color-primary-foreground: var(--foreground);
   --color-surface: var(--surface);
   --color-surface-bright: var(--surface-bright);
   --color-comment: var(--comment);
@@ -113,13 +115,13 @@ body {
 /* Radial fade mask — fades grid into the background at edges */
 .mask-radial-fade {
   -webkit-mask-image: radial-gradient(
-    ellipse 85% 75% at 50% 0%,
-    black 55%,
+    ellipse 75% 85% at 50% 0%,
+    black 85%,
     transparent 100%
   );
   mask-image: radial-gradient(
-    ellipse 85% 75% at 50% 0%,
-    black 55%,
+    ellipse 75% 85% at 50% 0%,
+    black 85%,
     transparent 100%
   );
 }
@@ -156,7 +158,6 @@ body {
 .surface-panel {
   border: 1px solid var(--border-subtle);
   background: var(--background-dark);
-  box-shadow: 0 20px 60px rgba(25, 26, 33, 0.55);
 }
 
 .surface-hero {
