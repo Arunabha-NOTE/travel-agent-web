@@ -29,7 +29,7 @@
     "cobe": "^0.6.5",
     "husky": "^9.1.7",
     "js-cookie": "^3.0.5",
-    "lucide-react": "^0.577.0",
+    "lucide-react": "^1.0.0",
     "motion": "^12.36.0",
     "next": "16.1.1",
     "react": "19.2.3",
