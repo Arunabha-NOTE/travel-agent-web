@@ -8,7 +8,7 @@ import { TypingText } from "@/components/ui/typing-text";
 
 export function LandingHero() {
   return (
-    <section className="relative flex min-h-[92vh] flex-col items-center justify-center overflow-hidden px-6 pt-20 pb-12">
+    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 pb-12">
       {/* Grid background */}
       <div className="absolute inset-0 bg-grid mask-radial-fade" />
 
