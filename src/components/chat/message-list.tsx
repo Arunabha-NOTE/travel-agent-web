@@ -17,27 +17,55 @@ const THINK_CLOSED_RE = /<think>([\s\S]*?)<\/think>/g;
 const THINK_OPEN_RE = /<think>([\s\S]*)$/;
 const ITINERARY_CLOSED_RE = /<itinerary>[\s\S]*?<\/itinerary>/;
 const ITINERARY_OPEN_RE = /<itinerary>[\s\S]*$/;
+const PLANNING_STAGE_RE = /<planning_stage>[\s\S]*?<\/planning_stage>/g;
+// [STEP:label] markers emitted by tool-call events
+const STEP_RE = /\[STEP:([^\]]+)\]/g;
+
+function StepsIndicator({ steps }: { steps: string[] }) {
+  if (steps.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1 mb-3">
+      {steps.map((step) => (
+        <div
+          key={step.slice(0, 40)}
+          className="flex items-center gap-2 text-xs text-muted"
+        >
+          <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+          {step}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 /**
  * Parse message content:
  *  - Remove ALL <think>...</think> blocks, collecting them into thinkContent
  *  - Handle unclosed streaming think block
- *  - Strip <itinerary> blocks and replace with placeholder text
+ *  - Strip <itinerary> and <planning_stage> blocks
+ *  - Extract [STEP:label] markers as agentSteps
  */
 function parseMessageContent(raw: string) {
   let text = raw ?? "";
   const thinkParts: string[] = [];
   let isThinking = false;
 
-  // Remove ALL completed think blocks globally, collecting their content
+  // Extract [STEP:] markers before other processing
+  const agentSteps: string[] = [];
+  text = text.replace(STEP_RE, (_m: string, label: string) => {
+    agentSteps.push(label);
+    return "";
+  });
+  STEP_RE.lastIndex = 0;
+
+  // Remove ALL completed think blocks globally
   text = text.replace(THINK_CLOSED_RE, (_match: string, inner: string) => {
     thinkParts.push(inner.trim());
     return "";
   });
-  // Reset lastIndex after global regex use
   THINK_CLOSED_RE.lastIndex = 0;
 
-  // Check for an unclosed (still-streaming) think block at the end
+  // Check for an unclosed (still-streaming) think block
   const openThink = THINK_OPEN_RE.exec(text);
   if (openThink) {
     thinkParts.push(openThink[1].trim());
@@ -48,13 +76,17 @@ function parseMessageContent(raw: string) {
   const thinkContent =
     thinkParts.length > 0 ? thinkParts.join("\n\n---\n\n") : null;
 
-  // Strip finished itinerary block and replace with placeholder
+  // Strip planning_stage tags
+  text = text.replace(PLANNING_STAGE_RE, "");
+  PLANNING_STAGE_RE.lastIndex = 0;
+
+  // Strip finished itinerary block
   const closedItinerary = ITINERARY_CLOSED_RE.exec(text);
   if (closedItinerary) {
     text = text
       .replace(
         closedItinerary[0],
-        "\n\n\u2728 *I've generated your custom itinerary \u2014 see the card panel on the right!*",
+        "\n\n\u2728 *I've updated your itinerary \u2014 see the panel on the right!*",
       )
       .trim();
   } else {
@@ -67,7 +99,7 @@ function parseMessageContent(raw: string) {
     }
   }
 
-  return { content: text.trim(), thinkContent, isThinking };
+  return { content: text.trim(), thinkContent, isThinking, agentSteps };
 }
 
 /** Strip think tags — used for titles/placeholders in the UI */
@@ -252,7 +284,7 @@ export function MessageList({
       {streamingContent !== null &&
         streamingContent !== undefined &&
         (() => {
-          const { content, thinkContent, isThinking } =
+          const { content, thinkContent, isThinking, agentSteps } =
             parseMessageContent(streamingContent);
 
           return (
@@ -278,6 +310,9 @@ export function MessageList({
                   </details>
                 )}
 
+                {/* Agent step indicators (tool calls) */}
+                {agentSteps.length > 0 && <StepsIndicator steps={agentSteps} />}
+
                 {content && <MarkdownContent content={content} />}
 
                 <div className="mt-1 flex items-center gap-1.5 text-[10px] text-primary/70">
@@ -286,7 +321,11 @@ export function MessageList({
                     <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:150ms]" />
                     <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:300ms]" />
                   </span>
-                  {isThinking ? "Thinking..." : "Generating..."}
+                  {isThinking
+                    ? "Thinking..."
+                    : agentSteps.length > 0
+                      ? agentSteps[agentSteps.length - 1]
+                      : "Generating..."}
                 </div>
               </div>
             </div>

@@ -74,6 +74,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
   const [renameChatId, setRenameChatId] = useState<string | null>(null);
   const [renameTitle, setRenameTitle] = useState("");
   const [deleteChatId, setDeleteChatId] = useState<string | null>(null);
+  const [isItineraryFullscreen, setIsItineraryFullscreen] = useState(false);
 
   const chats = chatsQuery.data ?? [];
   const profile = profileQuery.data;
@@ -104,7 +105,6 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
     useSendMessage(activeChatId);
 
   const messages = messagesQuery.data ?? [];
-  const itinerary = itineraryQuery.data;
 
   const deleteChatTarget = chats.find((chat) => chat.id === deleteChatId);
 
@@ -420,10 +420,21 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
             </div>
           </section>
 
-          {/* Itinerary Panel */}
-          {itinerary && (
-            <aside className="surface-panel hidden lg:flex w-[380px] shrink-0 h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem]">
-              <ItineraryCard data={itinerary.itinerary_data} />
+          {/* Itinerary / Planning Panel — always visible for active chats */}
+          {activeChatId && (
+            <aside
+              className={cn(
+                "surface-panel shrink-0 min-h-0 flex-col overflow-hidden transition-all duration-300",
+                isItineraryFullscreen
+                  ? "absolute inset-4 z-50 flex rounded-3xl lg:relative lg:inset-auto lg:w-full lg:h-full lg:flex-1"
+                  : "hidden lg:flex w-[380px] h-full rounded-[1.75rem]"
+              )}
+            >
+              <ItineraryCard
+                chatId={activeChatId}
+                isFullscreen={isItineraryFullscreen}
+                onToggleFullscreen={() => setIsItineraryFullscreen((prev) => !prev)}
+              />
             </aside>
           )}
         </div>

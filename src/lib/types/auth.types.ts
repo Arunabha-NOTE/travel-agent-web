@@ -54,6 +54,6 @@ export type SendMessageRequest = z.infer<typeof SendMessageRequestSchema>;
 
 // Itinerary
 export type Itinerary = z.infer<typeof ItinerarySchema>;
-export type ItineraryData = Itinerary["itinerary_data"];
-export type ItineraryDay = ItineraryData["days"][number];
+/** @deprecated Use ItineraryData from @/lib/schemas/auth.schemas instead */
+export type ItineraryDay = Itinerary["itinerary_data"]["days"][number];
 export type ItineraryActivity = ItineraryDay["activities"][number];
