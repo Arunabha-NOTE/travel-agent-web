@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { ItineraryCard } from "@/components/chat/itinerary-card";
+import { MessageInput } from "@/components/chat/message-input";
+import { MessageList } from "@/components/chat/message-list";
 import { Icons } from "@/components/icons/icon";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,9 +37,12 @@ import {
   useChatsQuery,
   useCreateChatMutation,
   useDeleteChatMutation,
+  useItineraryQuery,
   useLogoutMutation,
+  useMessagesQuery,
   useProfileQuery,
   useRenameChatMutation,
+  useSendMessage,
 } from "@/lib/query";
 import { cn } from "@/lib/utils";
 
@@ -54,7 +59,6 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
     PlaneTakeoff,
     Plus,
     Search,
-    Sparkles,
     Trash2,
     UserCircle2,
   } = Icons;
@@ -95,34 +99,13 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
   const chatQuery = useChatQuery(activeChatId);
   const activeChat = chatQuery.data;
 
-  const previewMessages = useMemo(() => {
-    if (!activeChat) {
-      return [];
-    }
+  const messagesQuery = useMessagesQuery(activeChatId);
+  const itineraryQuery = useItineraryQuery(activeChatId);
+  const { sendMessage, streamingContent, isStreaming } =
+    useSendMessage(activeChatId);
 
-    return [
-      {
-        id: "user-1",
-        role: "user",
-        body: `I need help planning a trip to Japan`,
-      },
-      {
-        id: "assistant-1",
-        role: "assistant",
-        body: `I'd be happy to help you plan your trip to Japan! To create the perfect itinerary for you, I'd like to know a few things: When are you planning to visit? How many days will you be staying? And what are your main interests - culture, food, nature, cities, or a mix?`,
-      },
-      {
-        id: "user-2",
-        role: "user",
-        body: `I'm planning for 10 days in spring, interested in culture and food`,
-      },
-      {
-        id: "assistant-2",
-        role: "assistant",
-        body: `Perfect timing! Spring is beautiful in Japan with cherry blossoms. For a 10-day culture and food focused trip, I recommend: Tokyo (3 days) - explore traditional temples, modern districts, and incredible food scene; Kyoto (3 days) - ancient temples, traditional tea houses, and kaiseki dining; Osaka (2 days) - known as "Japan's kitchen" with street food and nightlife; Nara (1 day) - historic temples and friendly deer; Plus travel days between cities. Would you like me to create a detailed day-by-day itinerary?`,
-      },
-    ];
-  }, [activeChat]);
+  const messages = messagesQuery.data ?? [];
+  const itinerary = itineraryQuery.data;
 
   const deleteChatTarget = chats.find((chat) => chat.id === deleteChatId);
 
@@ -189,12 +172,29 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
               {activeChat.title}
             </div>
           )}
+
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="gap-1.5 rounded-full text-xs"
+            disabled={createChatMutation.isPending}
+            onClick={() => void onCreateChat()}
+          >
+            {createChatMutation.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Plus className="h-3.5 w-3.5" />
+            )}
+            New chat
+          </Button>
         </div>
       </header>
 
       <div className="min-h-0 flex-1 overflow-hidden px-4 py-4 md:px-6 md:py-6">
-        <div className="grid h-full min-h-0 gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <aside className="surface-panel flex h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem]">
+        <div className="flex h-full min-h-0 gap-4">
+          {/* Main Sidebar */}
+          <aside className="surface-panel hidden w-[280px] shrink-0 lg:flex h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem]">
             <div className="border-b border-selection/70 p-4">
               <Button
                 type="button"
@@ -356,7 +356,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
             </div>
           </aside>
 
-          <section className="surface-panel flex h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem]">
+          <section className="surface-panel flex flex-1 h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem]">
             <div className="flex h-full flex-col">
               {chatQuery.isLoading ? (
                 <div className="flex flex-1 items-center justify-center px-6">
@@ -391,70 +391,42 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
 
               {!chatQuery.isLoading && !chatQuery.isError && activeChat ? (
                 <>
-                  <div className="flex-1 overflow-y-auto px-4 py-6 md:px-6">
-                    <div className="mx-auto max-w-3xl space-y-6">
-                      {previewMessages.map((message) => {
-                        const isUser = message.role === "user";
-                        return (
-                          <div
-                            key={message.id}
-                            className={cn(
-                              "flex gap-3",
-                              isUser && "flex-row-reverse",
-                            )}
-                          >
-                            <div
-                              className={cn(
-                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                                isUser
-                                  ? "bg-primary/20 text-primary"
-                                  : "bg-selection/60 text-primary",
-                              )}
-                            >
-                              {isUser ? (
-                                <UserCircle2 className="h-4 w-4" />
-                              ) : (
-                                <Sparkles className="h-4 w-4" />
-                              )}
-                            </div>
-                            <div
-                              className={cn(
-                                "flex-1 rounded-2xl px-4 py-3",
-                                isUser
-                                  ? "bg-primary/12 text-foreground"
-                                  : "bg-surface/30 text-foreground",
-                              )}
-                            >
-                              <p className="text-sm leading-relaxed">
-                                {message.body}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="mx-auto max-w-3xl">
+                      {messagesQuery.isLoading ? (
+                        <div className="flex justify-center p-8 text-sm text-muted">
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Loading messages...
+                        </div>
+                      ) : (
+                        <MessageList
+                          messages={messages}
+                          streamingContent={streamingContent}
+                        />
+                      )}
                     </div>
                   </div>
 
-                  <div className="border-t border-selection/50 px-4 py-4 md:px-6">
+                  <div className="shrink-0 border-t border-selection/50 px-4 py-4 md:px-6 mt-auto">
                     <div className="mx-auto max-w-3xl">
-                      <div className="flex items-end gap-3 rounded-2xl border border-selection/60 bg-surface/20 p-3">
-                        <Input
-                          placeholder={`Message ${activeChat.title}...`}
-                          className="min-h-[40px] flex-1 resize-none border-0 bg-transparent px-0 py-2 text-sm shadow-none focus-visible:ring-0"
-                        />
-                        <Button
-                          size="sm"
-                          className="h-9 shrink-0 rounded-xl px-4"
-                        >
-                          Send
-                        </Button>
-                      </div>
+                      <MessageInput
+                        onSend={sendMessage}
+                        disabled={isStreaming}
+                        placeholder={`Message ${activeChat.title}...`}
+                      />
                     </div>
                   </div>
                 </>
               ) : null}
             </div>
           </section>
+
+          {/* Itinerary Panel */}
+          {itinerary && (
+            <aside className="surface-panel hidden lg:flex w-[380px] shrink-0 h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem]">
+              <ItineraryCard data={itinerary.itinerary_data} />
+            </aside>
+          )}
         </div>
       </div>
 

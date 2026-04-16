@@ -19,4 +19,10 @@ export const queryKeys = {
   system: {
     health: ["system", "health"] as const,
   },
+  message: {
+    list: (chatId?: number) => ["message", "list", chatId] as const,
+  },
+  itinerary: {
+    detail: (chatId?: number) => ["itinerary", "detail", chatId] as const,
+  },
 };

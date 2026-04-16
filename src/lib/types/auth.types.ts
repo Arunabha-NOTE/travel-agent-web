@@ -7,12 +7,16 @@ import type {
   ForgotPasswordRequestSchema,
   ForgotPasswordResponseSchema,
   HealthResponseSchema,
+  ItinerarySchema,
   LoginRequestSchema,
   LoginResponseSchema,
   LogoutRequestSchema,
+  MessageListSchema,
+  MessageSchema,
   ProfileResetPasswordRequestSchema,
   RegisterRequestSchema,
   RenameChatRequestSchema,
+  SendMessageRequestSchema,
   UserProfileSchema,
 } from "@/lib/schemas/auth.schemas";
 import type {
@@ -42,3 +46,14 @@ export type RenameChatRequest = z.infer<typeof RenameChatRequestSchema>;
 export type LoginFormValues = z.infer<typeof loginFormSchema>;
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordFormSchema>;
 export type RegisterFormValues = z.infer<typeof registerFormSchema>;
+
+// Chat messages
+export type Message = z.infer<typeof MessageSchema>;
+export type MessageList = z.infer<typeof MessageListSchema>;
+export type SendMessageRequest = z.infer<typeof SendMessageRequestSchema>;
+
+// Itinerary
+export type Itinerary = z.infer<typeof ItinerarySchema>;
+export type ItineraryData = Itinerary["itinerary_data"];
+export type ItineraryDay = ItineraryData["days"][number];
+export type ItineraryActivity = ItineraryDay["activities"][number];

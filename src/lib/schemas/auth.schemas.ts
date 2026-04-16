@@ -65,3 +65,69 @@ export const CreateChatRequestSchema = z.object({
 export const RenameChatRequestSchema = z.object({
   title: z.string().min(1).max(255),
 });
+
+// ---------------------------------------------------------------------------
+// Messages
+// ---------------------------------------------------------------------------
+export const MessageSchema = z.object({
+  id: z.number().int().positive(),
+  chat_room_id: z.number().int().positive(),
+  sender_role: z.enum(["user", "assistant", "system", "tool"]),
+  content: z.string(),
+  created_at: z.string().datetime(),
+  message_metadata: z.record(z.unknown()).nullable().optional(),
+});
+
+export const MessageListSchema = z.array(MessageSchema);
+
+export const SendMessageRequestSchema = z.object({
+  content: z.string().min(1),
+  agent: z.enum(["langchain", "langgraph"]).default("langchain"),
+});
+
+// ---------------------------------------------------------------------------
+// Itinerary
+// ---------------------------------------------------------------------------
+const ActivitySchema = z.object({
+  time: z.string(),
+  title: z.string(),
+  description: z.string(),
+  location: z.string(),
+  lat: z.number(),
+  lon: z.number(),
+  duration_hours: z.number().optional(),
+  category: z.string().optional(),
+});
+
+const DaySchema = z.object({
+  day: z.number().int(),
+  title: z.string(),
+  activities: z.array(ActivitySchema),
+});
+
+export const ItineraryDataSchema = z.object({
+  destination: z.string(),
+  total_days: z.number().int(),
+  start_date: z.string().nullable().optional(),
+  end_date: z.string().nullable().optional(),
+  weather_summary: z.string().optional(),
+  best_season: z.string().optional(),
+  days: z.array(DaySchema),
+  tips: z.array(z.string()).optional(),
+  estimated_budget: z
+    .object({
+      currency: z.string(),
+      accommodation_per_night: z.number().nullable().optional(),
+      food_per_day: z.number().nullable().optional(),
+      total_estimate: z.number().nullable().optional(),
+    })
+    .optional(),
+});
+
+export const ItinerarySchema = z.object({
+  id: z.number().int().positive(),
+  chat_room_id: z.number().int().positive(),
+  itinerary_data: ItineraryDataSchema,
+  generated_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+});
