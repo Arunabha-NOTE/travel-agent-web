@@ -6,7 +6,11 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 // Fix default leaflet marker icons broken by webpack
-delete (L.Icon.Default.prototype as typeof L.Icon.Default.prototype & { _getIconUrl?: unknown })._getIconUrl;
+delete (
+  L.Icon.Default.prototype as typeof L.Icon.Default.prototype & {
+    _getIconUrl?: unknown;
+  }
+)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",

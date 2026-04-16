@@ -94,7 +94,10 @@ function DayAccordion({ day }: { day: ItineraryDay }) {
       {open && (
         <div className="px-4 pb-2">
           {day.activities.map((activity) => (
-            <ActivityItem key={`${activity.time}-${activity.title}`} activity={activity} />
+            <ActivityItem
+              key={`${activity.time}-${activity.title}`}
+              activity={activity}
+            />
           ))}
         </div>
       )}
