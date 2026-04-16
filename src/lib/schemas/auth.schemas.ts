@@ -75,7 +75,7 @@ export const MessageSchema = z.object({
   sender_role: z.enum(["user", "assistant", "system", "tool"]),
   content: z.string(),
   created_at: z.string().datetime(),
-  message_metadata: z.record(z.unknown()).nullable().optional(),
+  message_metadata: z.record(z.string(), z.unknown()).nullable().optional(),
 });
 
 export const MessageListSchema = z.array(MessageSchema);
