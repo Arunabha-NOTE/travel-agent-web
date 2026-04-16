@@ -11,7 +11,7 @@ export const queryKeys = {
   },
   chat: {
     list: ["chat", "list"] as const,
-    detail: (chatId?: number) => ["chat", "detail", chatId] as const,
+    detail: (chatId?: string) => ["chat", "detail", chatId] as const,
     create: ["chat", "create"] as const,
     rename: ["chat", "rename"] as const,
     delete: ["chat", "delete"] as const,
@@ -20,9 +20,9 @@ export const queryKeys = {
     health: ["system", "health"] as const,
   },
   message: {
-    list: (chatId?: number) => ["message", "list", chatId] as const,
+    list: (chatId?: string) => ["message", "list", chatId] as const,
   },
   itinerary: {
-    detail: (chatId?: number) => ["itinerary", "detail", chatId] as const,
+    detail: (chatId?: string) => ["itinerary", "detail", chatId] as const,
   },
 };

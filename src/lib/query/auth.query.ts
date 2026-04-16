@@ -119,11 +119,11 @@ export function useChatsQuery() {
   });
 }
 
-export function useChatQuery(chatId?: number) {
+export function useChatQuery(chatId?: string) {
   return useQuery({
     queryKey: queryKeys.chat.detail(chatId),
-    queryFn: () => authService.getChat(chatId as number),
-    enabled: typeof chatId === "number" && Number.isFinite(chatId),
+    queryFn: () => authService.getChat(chatId as string),
+    enabled: typeof chatId === "string" && chatId.length > 0,
   });
 }
 
@@ -148,7 +148,7 @@ export function useRenameChatMutation() {
 
   return useMutation({
     mutationKey: queryKeys.chat.rename,
-    mutationFn: ({ chatId, title }: { chatId: number; title: string }) =>
+    mutationFn: ({ chatId, title }: { chatId: string; title: string }) =>
       authService.renameChat(chatId, { title }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.chat.list });

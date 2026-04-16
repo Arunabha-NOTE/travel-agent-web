@@ -49,7 +49,7 @@ export const ProfileResetPasswordRequestSchema = z.object({
 });
 
 export const ChatSchema = z.object({
-  id: z.number().int().positive(),
+  id: z.string().uuid(),
   user_id: z.number().int().positive(),
   title: z.string().min(1),
   created_at: z.string().datetime(),
@@ -71,7 +71,7 @@ export const RenameChatRequestSchema = z.object({
 // ---------------------------------------------------------------------------
 export const MessageSchema = z.object({
   id: z.number().int().positive(),
-  chat_room_id: z.number().int().positive(),
+  chat_room_id: z.string().uuid(),
   sender_role: z.enum(["user", "assistant", "system", "tool"]),
   content: z.string(),
   created_at: z.string().datetime(),
@@ -91,11 +91,12 @@ export const SendMessageRequestSchema = z.object({
 const ActivitySchema = z.object({
   time: z.string(),
   title: z.string(),
-  description: z.string(),
-  location: z.string(),
-  lat: z.number(),
-  lon: z.number(),
-  duration_hours: z.number().optional(),
+  description: z.string().optional().default(""),
+  location: z.string().optional().default(""),
+  // LLMs sometimes return quoted numbers — coerce to be safe
+  lat: z.coerce.number().optional().default(0),
+  lon: z.coerce.number().optional().default(0),
+  duration_hours: z.coerce.number().optional(),
   category: z.string().optional(),
 });
 
@@ -110,23 +111,24 @@ export const ItineraryDataSchema = z.object({
   total_days: z.number().int(),
   start_date: z.string().nullable().optional(),
   end_date: z.string().nullable().optional(),
-  weather_summary: z.string().optional(),
-  best_season: z.string().optional(),
+  weather_summary: z.string().nullable().optional(),
+  best_season: z.string().nullable().optional(),
   days: z.array(DaySchema),
   tips: z.array(z.string()).optional(),
   estimated_budget: z
     .object({
-      currency: z.string(),
-      accommodation_per_night: z.number().nullable().optional(),
-      food_per_day: z.number().nullable().optional(),
-      total_estimate: z.number().nullable().optional(),
+      currency: z.string().optional().default("USD"),
+      accommodation_per_night: z.coerce.number().nullable().optional(),
+      food_per_day: z.coerce.number().nullable().optional(),
+      total_estimate: z.coerce.number().nullable().optional(),
     })
     .optional(),
 });
 
 export const ItinerarySchema = z.object({
   id: z.number().int().positive(),
-  chat_room_id: z.number().int().positive(),
+  // UUID comes back as a string from the backend
+  chat_room_id: z.string().uuid(),
   itinerary_data: ItineraryDataSchema,
   generated_at: z.string().datetime(),
   updated_at: z.string().datetime(),

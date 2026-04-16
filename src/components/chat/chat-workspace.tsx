@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ItineraryCard } from "@/components/chat/itinerary-card";
 import { MessageInput } from "@/components/chat/message-input";
-import { MessageList } from "@/components/chat/message-list";
+import { MessageList, stripThinkTags } from "@/components/chat/message-list";
 import { Icons } from "@/components/icons/icon";
 import {
   AlertDialog,
@@ -21,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -47,7 +46,7 @@ import {
 import { cn } from "@/lib/utils";
 
 type ChatWorkspaceProps = {
-  selectedChatId?: number;
+  selectedChatId?: string;
 };
 
 export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
@@ -72,9 +71,9 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
   const logoutMutation = useLogoutMutation();
 
   const [searchValue, setSearchValue] = useState("");
-  const [renameChatId, setRenameChatId] = useState<number | null>(null);
+  const [renameChatId, setRenameChatId] = useState<string | null>(null);
   const [renameTitle, setRenameTitle] = useState("");
-  const [deleteChatId, setDeleteChatId] = useState<number | null>(null);
+  const [deleteChatId, setDeleteChatId] = useState<string | null>(null);
 
   const chats = chatsQuery.data ?? [];
   const profile = profileQuery.data;
@@ -89,7 +88,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
   }, [chats, searchValue]);
 
   const activeChatId = useMemo(() => {
-    if (typeof selectedChatId === "number") {
+    if (typeof selectedChatId === "string") {
       return selectedChatId;
     }
 
@@ -169,7 +168,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
           {activeChat && (
             <div className="hidden items-center gap-2 rounded-full border border-selection/60 bg-surface/20 px-3 py-1.5 text-xs text-foreground/80 md:flex">
               <MessageSquare className="h-3.5 w-3.5" />
-              {activeChat.title}
+              {stripThinkTags(activeChat.title)}
             </div>
           )}
 
@@ -265,7 +264,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
                     >
                       <Link href={`/chat/${chat.id}`} className="block">
                         <p className="truncate text-sm font-medium text-foreground">
-                          {chat.title}
+                          {stripThinkTags(chat.title)}
                         </p>
                         <p className="mt-1 text-xs text-muted">
                           {new Date(chat.updated_at).toLocaleDateString()}
@@ -412,7 +411,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
                       <MessageInput
                         onSend={sendMessage}
                         disabled={isStreaming}
-                        placeholder={`Message ${activeChat.title}...`}
+                        placeholder={`Message ${stripThinkTags(activeChat.title)}...`}
                       />
                     </div>
                   </div>
@@ -442,9 +441,6 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Rename chat</DialogTitle>
-            <DialogDescription>
-              Update the thread title without leaving the sidebar.
-            </DialogDescription>
           </DialogHeader>
 
           <form className="mt-5" onSubmit={onRenameSubmit}>

@@ -14,7 +14,7 @@ import type { Itinerary, Message, SendMessageRequest } from "@/lib/types";
 
 export const chatService = {
   /** List all messages in a chat room (ordered oldest-first). */
-  async listMessages(chatId: number): Promise<Message[]> {
+  async listMessages(chatId: string): Promise<Message[]> {
     const response = await apiClient.get(`/api/v1/chats/${chatId}/messages`);
     return MessageListSchema.parse(response.data);
   },
@@ -26,7 +26,7 @@ export const chatService = {
    * Pass the auth token manually because EventSource doesn't support headers natively.
    */
   async sendMessageStream(
-    chatId: number,
+    chatId: string,
     payload: SendMessageRequest,
     authToken: string,
   ): Promise<ReadableStreamDefaultReader<Uint8Array>> {
@@ -56,7 +56,7 @@ export const chatService = {
   },
 
   /** Get the latest generated itinerary for a chat room. */
-  async getItinerary(chatId: number): Promise<Itinerary> {
+  async getItinerary(chatId: string): Promise<Itinerary> {
     const response = await apiClient.get(`/api/v1/chats/${chatId}/itinerary`);
     return ItinerarySchema.parse(response.data);
   },

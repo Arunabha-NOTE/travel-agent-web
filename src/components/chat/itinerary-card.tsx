@@ -145,7 +145,7 @@ export function ItineraryCard({ data, className }: ItineraryCardProps) {
               )}
               {data.estimated_budget?.total_estimate && (
                 <span className="flex items-center gap-1">
-                  <Banknote className="h-3 w-3" />≈ $
+                  <Banknote className="h-3 w-3" />
                   {data.estimated_budget.total_estimate.toLocaleString()}{" "}
                   {data.estimated_budget.currency}
                 </span>

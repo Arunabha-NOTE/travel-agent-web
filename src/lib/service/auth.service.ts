@@ -85,7 +85,7 @@ export const authService = {
     return ChatListSchema.parse(response.data);
   },
 
-  async getChat(chatId: number) {
+  async getChat(chatId: string) {
     const response = await apiClient.get(`/api/v1/chats/${chatId}`);
     return ChatSchema.parse(response.data);
   },
@@ -96,7 +96,7 @@ export const authService = {
     return ChatSchema.parse(response.data);
   },
 
-  async renameChat(chatId: number, payload: RenameChatRequest) {
+  async renameChat(chatId: string, payload: RenameChatRequest) {
     const validatedPayload = RenameChatRequestSchema.parse(payload);
     const response = await apiClient.patch(
       `/api/v1/chats/${chatId}`,
@@ -105,7 +105,7 @@ export const authService = {
     return ChatSchema.parse(response.data);
   },
 
-  async deleteChat(chatId: number) {
+  async deleteChat(chatId: string) {
     await apiClient.delete(`/api/v1/chats/${chatId}`);
   },
 };

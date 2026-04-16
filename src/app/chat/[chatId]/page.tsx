@@ -6,10 +6,5 @@ type ChatDetailPageProps = {
 
 export default async function ChatDetailPage({ params }: ChatDetailPageProps) {
   const { chatId } = await params;
-  const parsedChatId = Number(chatId);
-  const selectedChatId = Number.isFinite(parsedChatId)
-    ? parsedChatId
-    : undefined;
-
-  return <ChatWorkspace selectedChatId={selectedChatId} />;
+  return <ChatWorkspace selectedChatId={chatId} />;
 }

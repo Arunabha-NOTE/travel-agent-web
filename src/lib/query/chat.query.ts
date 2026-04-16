@@ -7,23 +7,33 @@ import { clientEnv } from "@/config/env";
 import { getAccessToken } from "@/lib/auth/session";
 import { queryKeys } from "@/lib/query/query-keys";
 import { chatService } from "@/lib/service";
+import type { Message } from "@/lib/types";
 
 /** Fetch all messages for a chat room. */
-export function useMessagesQuery(chatId?: number) {
+export function useMessagesQuery(chatId?: string) {
   return useQuery({
     queryKey: queryKeys.message.list(chatId),
-    queryFn: () => chatService.listMessages(chatId as number),
-    enabled: typeof chatId === "number" && Number.isFinite(chatId),
+    queryFn: () => chatService.listMessages(chatId as string),
+    enabled: typeof chatId === "string" && chatId.length > 0,
     staleTime: 0,
   });
 }
 
 /** Fetch the latest itinerary for a chat room. Silently returns null on 404. */
-export function useItineraryQuery(chatId?: number) {
+export function useItineraryQuery(chatId?: string) {
   return useQuery({
     queryKey: queryKeys.itinerary.detail(chatId),
-    queryFn: () => chatService.getItinerary(chatId as number),
-    enabled: typeof chatId === "number" && Number.isFinite(chatId),
+    queryFn: async () => {
+      try {
+        return await chatService.getItinerary(chatId as string);
+      } catch (err: unknown) {
+        // Log schema/network errors so they're visible in DevTools
+        console.error("[useItineraryQuery] failed:", err);
+        throw err;
+      }
+    },
+    enabled: typeof chatId === "string" && chatId.length > 0,
+    staleTime: 0,
     retry: (failureCount, error: unknown) => {
       // Don't retry on 404 (no itinerary yet)
       if (
@@ -45,7 +55,7 @@ export function useItineraryQuery(chatId?: number) {
  * Manages an optimistic "streaming" message that accumulates tokens,
  * then refreshes the message list and itinerary when complete.
  */
-export function useSendMessage(chatId?: number) {
+export function useSendMessage(chatId?: string) {
   const queryClient = useQueryClient();
   const [streamingContent, setStreamingContent] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -60,6 +70,21 @@ export function useSendMessage(chatId?: number) {
         toast.error("Not authenticated");
         return;
       }
+
+      // Optimistically add user message to the UI
+      queryClient.setQueryData(
+        queryKeys.message.list(chatId),
+        (old: Message[] | undefined) => {
+          const tempMsg = {
+            id: crypto.randomUUID(), // Temporary ID
+            chat_room_id: chatId,
+            sender_role: "user",
+            content,
+            created_at: new Date().toISOString(),
+          };
+          return old ? [...old, tempMsg] : [tempMsg];
+        },
+      );
 
       setIsStreaming(true);
       setStreamingContent("");
