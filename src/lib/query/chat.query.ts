@@ -20,20 +20,27 @@ export function useMessagesQuery(chatId?: string) {
 }
 
 /** Fetch the latest itinerary for a chat room. Silently returns null on 404. */
-export function useItineraryQuery(chatId?: string) {
+export function useItineraryQuery(chatId?: string, liveUpdates = false) {
   return useQuery({
     queryKey: queryKeys.itinerary.detail(chatId),
     queryFn: async () => {
-      try {
-        return await chatService.getItinerary(chatId as string);
-      } catch (err: unknown) {
-        // Log schema/network errors so they're visible in DevTools
-        console.error("[useItineraryQuery] failed:", err);
-        throw err;
+      console.debug("[useItineraryQuery] fetching", { chatId, liveUpdates });
+      const data = await chatService.getItinerary(chatId as string);
+      if (!data) {
+        console.debug("[useItineraryQuery] empty itinerary", { chatId });
+        return null;
       }
+
+      const days = Array.isArray(data.itinerary_data?.days)
+        ? data.itinerary_data.days.length
+        : 0;
+      console.debug("[useItineraryQuery] fetched", { chatId, days });
+      return data;
     },
     enabled: typeof chatId === "string" && chatId.length > 0,
     staleTime: 0,
+    refetchInterval: liveUpdates ? 3000 : false,
+    refetchIntervalInBackground: false,
     retry: (failureCount, error: unknown) => {
       // Don't retry on 404 (no itinerary yet)
       if (
@@ -44,7 +51,7 @@ export function useItineraryQuery(chatId?: string) {
       ) {
         return false;
       }
-      return failureCount < 2;
+      return failureCount < 1;
     },
   });
 }
@@ -158,7 +165,21 @@ export function useSendMessage(chatId?: string) {
           queryClient.invalidateQueries({
             queryKey: queryKeys.itinerary.detail(chatId),
           }),
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.chat.list,
+          }),
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.chat.detail(chatId),
+          }),
         ]);
+
+        // Auto-title runs in background on the backend; recheck once more shortly after.
+        setTimeout(() => {
+          void queryClient.invalidateQueries({ queryKey: queryKeys.chat.list });
+          void queryClient.invalidateQueries({
+            queryKey: queryKeys.chat.detail(chatId),
+          });
+        }, 2000);
       }
     },
     [chatId, queryClient],

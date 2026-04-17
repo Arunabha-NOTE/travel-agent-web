@@ -121,17 +121,46 @@ function SectionHeader({
   );
 }
 
-function FlightCard({ data }: { data: ItineraryData }) {
-  const outbound = data.flights?.outbound;
-  if (!outbound) return null;
-  const segments = outbound.segments ?? [];
+function hasMeaningfulFlightLeg(
+  leg: ItineraryData["flights"] extends infer T
+    ? T extends { outbound?: infer L | null; return?: infer R | null }
+      ? L | R
+      : never
+    : never,
+) {
+  if (!leg || !Array.isArray(leg.segments) || leg.segments.length === 0) {
+    return false;
+  }
+
+  return leg.segments.some((seg) => {
+    const fromAirport = seg.from_airport?.trim().toUpperCase();
+    const toAirport = seg.to_airport?.trim().toUpperCase();
+    return (
+      !!seg.airline &&
+      fromAirport &&
+      toAirport &&
+      fromAirport !== "TBD" &&
+      toAirport !== "TBD"
+    );
+  });
+}
+
+function FlightLegCard({
+  title,
+  leg,
+}: {
+  title: string;
+  leg: NonNullable<NonNullable<ItineraryData["flights"]>["outbound"]>;
+}) {
+  const segments = leg.segments ?? [];
+  if (!hasMeaningfulFlightLeg(leg)) return null;
 
   return (
     <div className="bg-white/5 rounded-xl p-4 border border-white/10">
       <SectionHeader
         icon={<Plane size={14} />}
-        title="Outbound Flight"
-        badge={outbound.cabin_class ?? "economy"}
+        title={title}
+        badge={leg.cabin_class ?? "economy"}
       />
 
       {/* Route pill */}
@@ -144,7 +173,7 @@ function FlightCard({ data }: { data: ItineraryData }) {
             <span className="text-xs font-mono bg-white/10 px-2 py-0.5 rounded">
               {seg.from_airport}
               {seg.from_terminal ? (
-                <span className="text-white/50 text-[10px]">
+                <span className="text-white/50 text-[10px] ml-1">
                   {seg.from_terminal}
                 </span>
               ) : null}
@@ -153,7 +182,7 @@ function FlightCard({ data }: { data: ItineraryData }) {
             <span className="text-xs font-mono bg-white/10 px-2 py-0.5 rounded">
               {seg.to_airport}
               {seg.to_terminal ? (
-                <span className="text-white/50 text-[10px]">
+                <span className="text-white/50 text-[10px] ml-1">
                   {seg.to_terminal}
                 </span>
               ) : null}
@@ -178,23 +207,40 @@ function FlightCard({ data }: { data: ItineraryData }) {
 
       {/* Price + duration */}
       <div className="flex items-center justify-between text-xs text-white/60 border-t border-white/10 pt-2 mt-2">
-        {outbound.total_duration_mins ? (
+        {leg.total_duration_mins ? (
           <span className="flex items-center gap-1">
             <Clock size={11} />
-            {formatMins(outbound.total_duration_mins)} total
+            {formatMins(leg.total_duration_mins)} total
           </span>
         ) : null}
-        {outbound.price_per_person ? (
+        {leg.price_per_person ? (
           <span className="flex items-center gap-1 font-semibold text-white/80">
             <Wallet size={11} />
-            {formatCurrency(
-              outbound.price_per_person,
-              outbound.currency ?? "INR",
-            )}
+            {formatCurrency(leg.price_per_person, leg.currency ?? "INR")}
             /pax
           </span>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+function FlightCard({ data }: { data: ItineraryData }) {
+  const outbound = data.flights?.outbound ?? null;
+  const returnLeg = data.flights?.return ?? null;
+  const hasOutbound = hasMeaningfulFlightLeg(outbound);
+  const hasReturn = hasMeaningfulFlightLeg(returnLeg);
+
+  if (!hasOutbound && !hasReturn) return null;
+
+  return (
+    <div className="space-y-3">
+      {hasOutbound && outbound ? (
+        <FlightLegCard title="Outbound Flight" leg={outbound} />
+      ) : null}
+      {hasReturn && returnLeg ? (
+        <FlightLegCard title="Return Flight" leg={returnLeg} />
+      ) : null}
     </div>
   );
 }
@@ -465,14 +511,14 @@ function DayPanel({ day }: { day: ItineraryData["days"][0] }) {
         </span>
         <div className="flex-1 min-w-0">
           <span className="text-xs font-semibold text-white/80 group-hover:text-white transition-colors">
-            {day.title}
+            {day.title || `Day ${day.day}`}
           </span>
           {day.date && (
             <span className="ml-2 text-[10px] text-white/30">{day.date}</span>
           )}
         </div>
         {day.day_notes && (
-          <span className="text-[10px] text-amber-300/60 mr-2 hidden sm:block max-w-[120px] truncate">
+          <span className="text-[10px] text-amber-300/80 mr-2 hidden sm:block max-w-[320px] text-right truncate">
             {day.day_notes}
           </span>
         )}
@@ -570,16 +616,18 @@ function BudgetPanel({
 
 interface ItineraryCardProps {
   chatId: string;
+  liveUpdates?: boolean;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
 }
 
 export function ItineraryCard({
   chatId,
+  liveUpdates = false,
   isFullscreen,
   onToggleFullscreen,
 }: ItineraryCardProps) {
-  const { data, isLoading, isError } = useItineraryQuery(chatId);
+  const { data, isLoading, isError } = useItineraryQuery(chatId, liveUpdates);
   // Hook must be called unconditionally before any early returns
   const [activeTab, setActiveTab] = useState<"plan" | "map">("plan");
 
@@ -748,7 +796,7 @@ export function ItineraryCard({
             )}
 
             {/* Flights */}
-            {it.flights?.outbound && <FlightCard data={it} />}
+            {it.flights && <FlightCard data={it} />}
 
             {/* Hotel */}
             {it.hotel && <HotelCard hotel={it.hotel} />}

@@ -41,6 +41,8 @@ export const UserProfileSchema = z.object({
   is_active: z.boolean(),
   is_superuser: z.boolean(),
   token_usage_millions: z.number().nonnegative(),
+  total_tokens: z.number().int().nonnegative().optional(),
+  total_cost: z.number().nonnegative().optional(),
 });
 
 export const ProfileResetPasswordRequestSchema = z.object({
@@ -74,6 +76,9 @@ export const MessageSchema = z.object({
   chat_room_id: z.string().uuid(),
   sender_role: z.enum(["user", "assistant", "system", "tool"]),
   content: z.string(),
+  prompt_tokens: z.number().int().nullable().optional(),
+  completion_tokens: z.number().int().nullable().optional(),
+  total_cost: z.number().nullable().optional(),
   created_at: z.string().datetime(),
   message_metadata: z.record(z.string(), z.unknown()).nullable().optional(),
 });
@@ -130,13 +135,18 @@ const ActivitySchema = z.object({
   buffer_after_mins: z.coerce.number().optional(),
 });
 
-const DaySchema = z.object({
-  day: z.number().int(),
-  date: z.string().nullable().optional(),
-  title: z.string(),
-  day_notes: z.string().nullable().optional(),
-  activities: z.array(ActivitySchema),
-});
+const DaySchema = z
+  .object({
+    day: z.number().int(),
+    date: z.string().nullable().optional(),
+    title: z.string().optional().default(""),
+    day_notes: z.string().nullable().optional(),
+    activities: z.array(ActivitySchema),
+  })
+  .transform((day) => ({
+    ...day,
+    title: day.title.trim() || `Day ${day.day}`,
+  }));
 
 const FlightSegmentSchema = z.object({
   airline: z.string(),

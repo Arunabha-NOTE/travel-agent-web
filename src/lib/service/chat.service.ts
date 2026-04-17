@@ -56,8 +56,44 @@ export const chatService = {
   },
 
   /** Get the latest generated itinerary for a chat room. */
-  async getItinerary(chatId: string): Promise<Itinerary> {
-    const response = await apiClient.get(`/api/v1/chats/${chatId}/itinerary`);
-    return ItinerarySchema.parse(response.data);
+  async getItinerary(chatId: string): Promise<Itinerary | null> {
+    const startedAt = performance.now();
+    try {
+      const response = await apiClient.get(
+        `/api/v1/chats/${chatId}/itinerary`,
+        {
+          timeout: 25000,
+        },
+      );
+      const parsed = ItinerarySchema.parse(response.data);
+      const elapsedMs = Math.round(performance.now() - startedAt);
+      console.debug("[chatService.getItinerary] success", {
+        chatId,
+        elapsedMs,
+        status: response.status,
+      });
+      return parsed;
+    } catch (error: unknown) {
+      const elapsedMs = Math.round(performance.now() - startedAt);
+      if (
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        (error as { response?: { status?: number } }).response?.status === 404
+      ) {
+        console.debug("[chatService.getItinerary] empty", {
+          chatId,
+          elapsedMs,
+        });
+        return null;
+      }
+
+      console.error("[chatService.getItinerary] failed", {
+        chatId,
+        elapsedMs,
+        error,
+      });
+      throw error;
+    }
   },
 };

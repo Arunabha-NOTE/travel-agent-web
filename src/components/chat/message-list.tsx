@@ -25,9 +25,9 @@ function StepsIndicator({ steps }: { steps: string[] }) {
   if (steps.length === 0) return null;
   return (
     <div className="flex flex-col gap-1 mb-3">
-      {steps.map((step) => (
+      {steps.map((step, index) => (
         <div
-          key={step.slice(0, 40)}
+          key={`${step.slice(0, 40)}-${index}`}
           className="flex items-center gap-2 text-xs text-muted"
         >
           <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />

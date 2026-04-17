@@ -1,0 +1,130 @@
+{
+  "id": 8,
+  "chat_room_id": "22a6ac3e-f60f-43e7-bfe2-5d1a52bd17ba",
+  "generated_at": "2026-04-17T15:58:08.639981Z",
+  "updated_at": "2026-04-17T16:04:06.771696Z",
+  "itinerary_data": {
+    "destination": "Frankfurt, Germany",
+    "total_days": 7,
+    "start_date": "2026-05-23",
+    "end_date": "2026-05-29",
+    "weather_summary": "Late spring conditions with temperatures 15–24°C. Mild and pleasant with occasional light rain. Ideal for walking and sightseeing.",
+    "best_season": "Spring (May)",
+    "seasonal_warnings": [
+      "Start outdoor activities early to avoid midday heat and traffic spikes.",
+      "Keep a hydration buffer and backup indoor option for one block each day.",
+      "Occasional spring showers — carry a light jacket or umbrella",
+      "Museums can be busy on weekends — book Main Tower in advance"
+    ],
+    "flights": {
+      "outbound": {
+        "currency": "INR",
+        "segments": [
+          {
+            "airline": "IndiGo",
+            "arrival": null,
+            "departure": null,
+            "to_airport": "FRA",
+            "to_terminal": null,
+            "from_airport": "DEL",
+            "duration_mins": null,
+            "flight_number": null,
+            "from_terminal": null,
+            "layover_transit_mins": null
+          }
+        ],
+        "cabin_class": "economy",
+        "price_per_person": null,
+        "total_duration_mins": null
+      },
+      "return": null
+    },
+    "hotel": {
+      "lat": 50.1174,
+      "lon": 8.6271,
+      "name": "Radisson Blu Hotel Frankfurt",
+      "stars": 4,
+      "address": "65 Franklinstraße, 60486 Frankfurt, Germany",
+      "currency": "INR",
+      "booking_notes": "Free cancellation policies vary by season; verify before payment.",
+      "loyalty_program": "Radisson Rewards",
+      "price_per_night": null
+    },
+    "days": [
+      {
+        "day": 1,
+        "date": "2026-05-23",
+        "title": "Arrival & Old Town Exploration",
+        "day_notes": "Keep hydration and transfer buffers in mind. Mandatory rest after overnight flight.",
+        "activities": [
+          {
+            "lat": 50.1174,
+            "lon": 8.6271,
+            "time": "08:30",
+            "title": "Airport Transfer to Hotel",
+            "ticket": {
+              "cost": null,
+              "as_of": "2026",
+              "currency": "INR",
+              "booking_url": null,
+              "booking_lead_time": null,
+              "advance_booking_required": false
+            },
+            "category": "transport",
+            "location": "Frankfurt Airport to Radisson Blu Hotel Frankfurt",
+            "description": "Take a taxi from Frankfurt Airport to Radisson Blu Hotel Frankfurt. Estimated 20-minute drive.",
+            "weather_tip": "Clear spring morning, light jacket recommended",
+            "duration_mins": 60,
+            "opening_hours": "N/A",
+            "buffer_after_mins": 30,
+            "transit_from_prev": null
+          }
+        ]
+      },
+      {
+        "day": 7,
+        "date": "2026-05-29",
+        "title": "Day 7 Highlights",
+        "day_notes": "Keep hydration and transfer buffers in mind.",
+        "activities": [
+          {
+            "lat": 50.0333,
+            "lon": 8.5703,
+            "time": "14:30",
+            "title": "Boarding - Return Flight to Pune",
+            "ticket": {
+              "cost": null,
+              "as_of": "2026",
+              "currency": "INR",
+              "booking_url": null,
+              "booking_lead_time": null,
+              "advance_booking_required": false
+            },
+            "category": "transport",
+            "location": "Frankfurt Airport, Terminal 1",
+            "description": "Board Lufthansa return flight to Pune via Delhi connection.",
+            "weather_tip": "Bon voyage!",
+            "duration_mins": 30,
+            "opening_hours": "N/A",
+            "buffer_after_mins": 20,
+            "transit_from_prev": null
+          }
+        ]
+      }
+    ],
+    "tips": [
+      "Always carry your Radisson Rewards card for discounts and point earning",
+      "Lufthansa offers free seat selection for premium economy passengers - book early"
+    ],
+    "estimated_budget": {
+      "currency": "INR",
+      "food_per_day": 1800,
+      "flights_total": null,
+      "total_estimate": 32700,
+      "activities_total": 13800,
+      "accommodation_total": null,
+      "accommodation_per_night": null,
+      "local_transport_per_day": 900
+    }
+  }
+}
