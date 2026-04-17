@@ -124,7 +124,7 @@ function SectionHeader({
 function hasMeaningfulFlightLeg(
   leg: ItineraryData["flights"] extends infer T
     ? T extends { outbound?: infer L | null; return?: infer R | null }
-      ? L | R
+      ? (L | R | null)
       : never
     : never,
 ) {
