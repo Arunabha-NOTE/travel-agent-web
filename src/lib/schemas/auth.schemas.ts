@@ -165,9 +165,34 @@ const FlightLegSchema = z
   .object({
     segments: z.array(FlightSegmentSchema),
     total_duration_mins: z.coerce.number().optional(),
+    total_for_two: z.coerce.number().nullable().optional(),
+    total_for_two_inr: z.coerce.number().nullable().optional(),
     cabin_class: z.string().optional(),
     price_per_person: z.coerce.number().nullable().optional(),
+    price_per_person_inr: z.coerce.number().nullable().optional(),
     currency: z.string().optional(),
+  })
+  .transform((leg) => {
+    const perPerson =
+      leg.price_per_person ??
+      leg.price_per_person_inr ??
+      (leg.total_for_two_inr != null
+        ? leg.total_for_two_inr / 2
+        : leg.total_for_two != null
+          ? leg.total_for_two / 2
+          : null);
+
+    const derivedCurrency =
+      leg.currency ??
+      (leg.price_per_person_inr != null || leg.total_for_two_inr != null
+        ? "INR"
+        : undefined);
+
+    return {
+      ...leg,
+      price_per_person: perPerson,
+      currency: derivedCurrency,
+    };
   })
   .nullable()
   .optional();
@@ -187,6 +212,75 @@ const HotelSchema = z
   .nullable()
   .optional();
 
+const PanelStateSchema = z
+  .object({
+    status: z.string().optional(),
+    stage: z.string().nullable().optional(),
+    expected_total_days: z.coerce.number().int().nullable().optional(),
+    actual_days: z.coerce.number().int().nullable().optional(),
+    completion_ratio: z.coerce.number().nullable().optional(),
+    is_partial: z.boolean().optional(),
+    source: z.string().optional(),
+    message: z.string().nullable().optional(),
+    updated_at: z.string().optional(),
+  })
+  .optional();
+
+const EstimatedBudgetSchema = z
+  .object({
+    currency: z.string().optional().default("USD"),
+    flights_total: z.coerce.number().nullable().optional(),
+    flights_total_inr: z.coerce.number().nullable().optional(),
+    accommodation_total: z.coerce.number().nullable().optional(),
+    accommodation_total_inr: z.coerce.number().nullable().optional(),
+    activities_total: z.coerce.number().nullable().optional(),
+    activities_total_inr: z.coerce.number().nullable().optional(),
+    food_per_day: z.coerce.number().nullable().optional(),
+    food_extra_inr: z.coerce.number().nullable().optional(),
+    local_transport_per_day: z.coerce.number().nullable().optional(),
+    local_transport_inr: z.coerce.number().nullable().optional(),
+    total_estimate: z.coerce.number().nullable().optional(),
+    total_estimate_inr: z.coerce.number().nullable().optional(),
+    total_estimate_with_savings_inr: z.coerce.number().nullable().optional(),
+    // old compat
+    accommodation_per_night: z.coerce.number().nullable().optional(),
+  })
+  .transform((budget) => {
+    const inferredCurrency =
+      budget.currency ||
+      (budget.flights_total_inr != null ||
+      budget.accommodation_total_inr != null ||
+      budget.activities_total_inr != null ||
+      budget.food_extra_inr != null ||
+      budget.local_transport_inr != null ||
+      budget.total_estimate_inr != null ||
+      budget.total_estimate_with_savings_inr != null
+        ? "INR"
+        : "USD");
+
+    const localTransportPerDay =
+      budget.local_transport_per_day ?? budget.local_transport_inr ?? null;
+
+    const totalEstimate =
+      budget.total_estimate ??
+      budget.total_estimate_inr ??
+      budget.total_estimate_with_savings_inr ??
+      null;
+
+    return {
+      ...budget,
+      currency: inferredCurrency,
+      flights_total: budget.flights_total ?? budget.flights_total_inr ?? null,
+      accommodation_total:
+        budget.accommodation_total ?? budget.accommodation_total_inr ?? null,
+      activities_total:
+        budget.activities_total ?? budget.activities_total_inr ?? null,
+      food_per_day: budget.food_per_day ?? budget.food_extra_inr ?? null,
+      local_transport_per_day: localTransportPerDay,
+      total_estimate: totalEstimate,
+    };
+  });
+
 export const ItineraryDataSchema = z.object({
   destination: z.string(),
   total_days: z.number().int(),
@@ -204,20 +298,9 @@ export const ItineraryDataSchema = z.object({
     .optional(),
   hotel: HotelSchema,
   days: z.array(DaySchema),
+  panel_state: PanelStateSchema,
   tips: z.array(z.string()).optional().default([]),
-  estimated_budget: z
-    .object({
-      currency: z.string().optional().default("USD"),
-      flights_total: z.coerce.number().nullable().optional(),
-      accommodation_total: z.coerce.number().nullable().optional(),
-      activities_total: z.coerce.number().nullable().optional(),
-      food_per_day: z.coerce.number().nullable().optional(),
-      local_transport_per_day: z.coerce.number().nullable().optional(),
-      total_estimate: z.coerce.number().nullable().optional(),
-      // old compat
-      accommodation_per_night: z.coerce.number().nullable().optional(),
-    })
-    .optional(),
+  estimated_budget: EstimatedBudgetSchema.optional(),
 });
 
 export const ItinerarySchema = z.object({
