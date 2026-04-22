@@ -17,7 +17,7 @@ const lexendMono = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "TravelAI — Your AI Travel Planning Assistant",
+  title: "TravelAI - Your AI Travel Planning Assistant",
   description:
     "Plan personalized travel itineraries instantly with RAG-powered AI. Describe your trip and get a smart day-by-day plan in seconds.",
 };
