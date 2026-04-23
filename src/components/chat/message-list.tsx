@@ -47,6 +47,7 @@ function StepsIndicator({ steps }: { steps: string[] }) {
  */
 function parseMessageContent(raw: string) {
   let text = raw ?? "";
+  const rawText = text;
   const thinkParts: string[] = [];
   let isThinking = false;
 
@@ -57,6 +58,28 @@ function parseMessageContent(raw: string) {
     return "";
   });
   STEP_RE.lastIndex = 0;
+
+  let activeAgentStep: string | null = null;
+  const stepMatches = Array.from(rawText.matchAll(STEP_RE));
+  if (stepMatches.length > 0) {
+    const lastStep = stepMatches[stepMatches.length - 1];
+    const lastLabel = lastStep[1]?.trim();
+    const lastIndex = lastStep.index ?? -1;
+    const lastText = lastStep[0] ?? "";
+    const tailAfterLastStep =
+      lastIndex >= 0 ? rawText.slice(lastIndex + lastText.length) : rawText;
+    const cleanedTail = tailAfterLastStep
+      .replace(THINK_CLOSED_RE, "")
+      .replace(THINK_OPEN_RE, "")
+      .replace(ITINERARY_CLOSED_RE, "")
+      .replace(ITINERARY_OPEN_RE, "")
+      .replace(PLANNING_STAGE_RE, "")
+      .trim();
+
+    if (lastLabel && cleanedTail.length === 0) {
+      activeAgentStep = lastLabel;
+    }
+  }
 
   // Remove ALL completed think blocks globally
   text = text.replace(THINK_CLOSED_RE, (_match: string, inner: string) => {
@@ -99,7 +122,13 @@ function parseMessageContent(raw: string) {
     }
   }
 
-  return { content: text.trim(), thinkContent, isThinking, agentSteps };
+  return {
+    content: text.trim(),
+    thinkContent,
+    isThinking,
+    agentSteps,
+    activeAgentStep,
+  };
 }
 
 /** Strip think tags — used for titles/placeholders in the UI */
@@ -284,8 +313,13 @@ export function MessageList({
       {streamingContent !== null &&
         streamingContent !== undefined &&
         (() => {
-          const { content, thinkContent, isThinking, agentSteps } =
-            parseMessageContent(streamingContent);
+          const {
+            content,
+            thinkContent,
+            isThinking,
+            agentSteps,
+            activeAgentStep,
+          } = parseMessageContent(streamingContent);
 
           return (
             <div className="flex gap-3 items-end">
@@ -323,8 +357,8 @@ export function MessageList({
                   </span>
                   {isThinking
                     ? "Thinking..."
-                    : agentSteps.length > 0
-                      ? agentSteps[agentSteps.length - 1]
+                    : activeAgentStep
+                      ? activeAgentStep
                       : "Generating..."}
                 </div>
               </div>

@@ -121,23 +121,39 @@ export function useSendMessage(chatId?: string) {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let accumulated = "";
+        let sseBuffer = "";
+        let streamTerminated = false;
 
-        while (true) {
+        while (!streamTerminated) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n");
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split("\n");
+          sseBuffer = lines.pop() ?? "";
 
           for (const line of lines) {
             if (!line.startsWith("data: ")) continue;
             const data = line.slice(6);
-            if (data === "[DONE]") break;
+            if (data === "[DONE]") {
+              streamTerminated = true;
+              break;
+            }
             if (data.startsWith("[ERROR]")) {
               toast.error(data.replace("[ERROR] ", ""));
+              streamTerminated = true;
               break;
             }
             // Unescape newlines encoded in SSE
+            const token = data.replace(/\\n/g, "\n");
+            accumulated += token;
+            setStreamingContent(accumulated);
+          }
+        }
+
+        if (!streamTerminated && sseBuffer.startsWith("data: ")) {
+          const data = sseBuffer.slice(6);
+          if (!data.startsWith("[ERROR]") && data !== "[DONE]") {
             const token = data.replace(/\\n/g, "\n");
             accumulated += token;
             setStreamingContent(accumulated);
