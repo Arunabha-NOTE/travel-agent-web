@@ -48,4 +48,18 @@ export default withSentryConfig(nextConfig, {
       removeDebugLogging: true,
     },
   },
+
+  async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
+    // Strip trailing slash if present
+    const cleanBackendUrl = backendUrl.endsWith("/")
+      ? backendUrl.slice(0, -1)
+      : backendUrl;
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${cleanBackendUrl}/api/v1/:path*`,
+      },
+    ];
+  },
 });

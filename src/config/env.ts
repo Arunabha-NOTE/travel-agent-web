@@ -4,7 +4,7 @@ import { z } from "zod";
 // Example:
 //   NEXT_PUBLIC_API_BASE_URL: z.string().url(),
 const ClientEnvSchema = z.object({
-  NEXT_PUBLIC_API_BASE_URL: z.string().url().default("http://localhost:8000"),
+  NEXT_PUBLIC_API_BASE_URL: z.string().default(""),
   NEXT_PUBLIC_ACCESS_TOKEN_COOKIE: z
     .string()
     .min(1)
