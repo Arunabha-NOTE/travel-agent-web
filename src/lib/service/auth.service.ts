@@ -1,3 +1,8 @@
+import {
+  loginAction,
+  logoutAction,
+  registerAction,
+} from "@/app/actions/auth.actions";
 import { apiClient } from "@/lib/client";
 import {
   ChatListSchema,
@@ -25,20 +30,14 @@ import type {
 export const authService = {
   async login(payload: LoginRequest) {
     const validatedPayload = LoginRequestSchema.parse(payload);
-    const response = await apiClient.post(
-      "/api/v1/auth/login",
-      validatedPayload,
-    );
-    return LoginResponseSchema.parse(response.data);
+    const data = await loginAction(validatedPayload);
+    return LoginResponseSchema.parse(data);
   },
 
   async register(payload: RegisterRequest) {
     const validatedPayload = RegisterRequestSchema.parse(payload);
-    const response = await apiClient.post(
-      "/api/v1/auth/register",
-      validatedPayload,
-    );
-    return LoginResponseSchema.parse(response.data);
+    const data = await registerAction(validatedPayload);
+    return LoginResponseSchema.parse(data);
   },
 
   async healthCheck() {
@@ -47,8 +46,8 @@ export const authService = {
   },
 
   async logout() {
-    const response = await apiClient.post("/api/v1/auth/logout", {});
-    return response.data as { message: string };
+    await logoutAction();
+    return { message: "Logged out" };
   },
 
   async forgotPassword(payload: ForgotPasswordRequest) {
