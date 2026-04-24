@@ -294,6 +294,7 @@ export function AppSidebar() {
               value={renameTitle}
               onChange={(event) => setRenameTitle(event.target.value)}
               placeholder="Thread title"
+              maxLength={80}
             />
             <DialogFooter className="mt-4">
               <Button

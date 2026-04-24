@@ -2,12 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  clearAuthSession,
-  getRefreshToken,
-  setAccessToken,
-  setRefreshToken,
-} from "@/lib/auth/session";
 import { queryKeys } from "@/lib/query/query-keys";
 import { authService } from "@/lib/service";
 import { parseApiError } from "@/lib/utils/api-error";
@@ -18,9 +12,7 @@ export function useRegisterMutation() {
   return useMutation({
     mutationKey: queryKeys.auth.register,
     mutationFn: authService.register,
-    onSuccess: (data) => {
-      setAccessToken(data.access_token);
-      setRefreshToken(data.refresh_token);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.profile.me });
       toast.success("Account created successfully");
     },
@@ -36,9 +28,7 @@ export function useLoginMutation() {
   return useMutation({
     mutationKey: queryKeys.auth.login,
     mutationFn: authService.login,
-    onSuccess: (data) => {
-      setAccessToken(data.access_token);
-      setRefreshToken(data.refresh_token);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.profile.me });
       queryClient.invalidateQueries({ queryKey: queryKeys.chat.list });
       toast.success("Signed in");
@@ -55,11 +45,7 @@ export function useLogoutMutation() {
   return useMutation({
     mutationKey: queryKeys.auth.logout,
     mutationFn: async () => {
-      const refreshToken = getRefreshToken();
-      if (refreshToken) {
-        await authService.logout({ refresh_token: refreshToken });
-      }
-      clearAuthSession();
+      await authService.logout();
       queryClient.clear();
     },
     onSuccess: () => {

@@ -1,28 +1,27 @@
 import { z } from "zod";
 
+const CHAT_TITLE_MAX_LENGTH = 80;
+const CHAT_TITLE_CONTROL_CHAR_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/u;
+const CHAT_TITLE_UNSUPPORTED_CHAR_RE = /[\uA9C5\u{1242B}]/u;
+
 export const LoginRequestSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
 
 export const LoginResponseSchema = z.object({
-  access_token: z.string().min(1),
-  refresh_token: z.string().min(1),
-  token_type: z.string().default("bearer"),
   user_id: z.number().int().positive(),
 });
 
 export const RegisterRequestSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: z.email(),
+  password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password cannot exceed 128 characters"),
 });
 
-export const LogoutRequestSchema = z.object({
-  refresh_token: z.string().min(1),
-});
+export const LogoutRequestSchema = z.object({}).default({});
 
 export const ForgotPasswordRequestSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
 });
 
 export const ForgotPasswordResponseSchema = z.object({
@@ -36,7 +35,7 @@ export const HealthResponseSchema = z.object({
 
 export const UserProfileSchema = z.object({
   id: z.number().int().positive(),
-  email: z.string().email(),
+  email: z.email(),
   username: z.string().min(1),
   is_active: z.boolean(),
   is_superuser: z.boolean(),
@@ -61,11 +60,35 @@ export const ChatSchema = z.object({
 export const ChatListSchema = z.array(ChatSchema);
 
 export const CreateChatRequestSchema = z.object({
-  title: z.string().min(1).max(255),
+  title: z
+    .string()
+    .trim()
+    .min(1)
+    .max(CHAT_TITLE_MAX_LENGTH)
+    .refine(
+      (value) => !CHAT_TITLE_CONTROL_CHAR_RE.test(value),
+      "Chat title contains unsupported control characters",
+    )
+    .refine(
+      (value) => !CHAT_TITLE_UNSUPPORTED_CHAR_RE.test(value),
+      "Chat title contains unsupported characters",
+    ),
 });
 
 export const RenameChatRequestSchema = z.object({
-  title: z.string().min(1).max(255),
+  title: z
+    .string()
+    .trim()
+    .min(1)
+    .max(CHAT_TITLE_MAX_LENGTH)
+    .refine(
+      (value) => !CHAT_TITLE_CONTROL_CHAR_RE.test(value),
+      "Chat title contains unsupported control characters",
+    )
+    .refine(
+      (value) => !CHAT_TITLE_UNSUPPORTED_CHAR_RE.test(value),
+      "Chat title contains unsupported characters",
+    ),
 });
 
 // ---------------------------------------------------------------------------

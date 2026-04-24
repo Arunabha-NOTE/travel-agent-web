@@ -13,6 +13,22 @@ type MessageInputProps = {
   placeholder?: string;
 };
 
+const CONTROL_CHAR_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/u;
+const KNOWN_PROBLEMATIC_CHAR_RE = /\uA9C5/u;
+
+function validateMessageContent(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return "Message cannot be empty.";
+  if (trimmed.length > 8192) return "Message is too long (max 8192 characters).";
+  if (CONTROL_CHAR_RE.test(trimmed)) {
+    return "Message contains unsupported control characters.";
+  }
+  if (KNOWN_PROBLEMATIC_CHAR_RE.test(trimmed)) {
+    return "Message contains an unsupported character.";
+  }
+  return null;
+}
+
 export function MessageInput({
   onSend,
   disabled,
@@ -20,8 +36,11 @@ export function MessageInput({
 }: MessageInputProps) {
   const { Send, Loader2, Cpu, GitBranch } = Icons;
   const [value, setValue] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [agent, setAgent] = useState<AgentMode>("langchain");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const hasLiveValidationError =
+    value.trim().length > 0 && validateMessageContent(value) !== null;
 
   // Auto-resize textarea
   useEffect(() => {
@@ -29,12 +48,20 @@ export function MessageInput({
     if (!el) return;
     el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
-  }, []);
+  }, [value]);
 
   function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
     const trimmed = value.trim();
-    if (!trimmed || disabled) return;
+    if (disabled) return;
+
+    const validationError = validateMessageContent(trimmed);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setError(null);
     onSend(trimmed, agent);
     setValue("");
     if (textareaRef.current) {
@@ -89,7 +116,15 @@ export function MessageInput({
         <textarea
           ref={textareaRef}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            const nextValue = e.target.value;
+            setValue(nextValue);
+            const nextError =
+              nextValue.trim().length > 0
+                ? validateMessageContent(nextValue)
+                : null;
+            setError(nextError);
+          }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder ?? "Plan my trip to..."}
           rows={1}
@@ -99,7 +134,7 @@ export function MessageInput({
         <Button
           type="submit"
           size="sm"
-          disabled={disabled || !value.trim()}
+          disabled={disabled || !value.trim() || hasLiveValidationError}
           className="h-9 shrink-0 rounded-xl px-4"
         >
           {disabled ? (
@@ -109,6 +144,7 @@ export function MessageInput({
           )}
         </Button>
       </div>
+      {error ? <p className="text-xs text-red">{error}</p> : null}
       <p className="text-center text-[11px] text-muted">
         Press{" "}
         <kbd className="rounded bg-surface/40 px-1 py-0.5 font-mono text-[10px]">

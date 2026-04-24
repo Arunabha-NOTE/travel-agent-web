@@ -8,7 +8,6 @@ import {
   HealthResponseSchema,
   LoginRequestSchema,
   LoginResponseSchema,
-  LogoutRequestSchema,
   ProfileResetPasswordRequestSchema,
   RegisterRequestSchema,
   RenameChatRequestSchema,
@@ -18,7 +17,6 @@ import type {
   CreateChatRequest,
   ForgotPasswordRequest,
   LoginRequest,
-  LogoutRequest,
   ProfileResetPasswordRequest,
   RegisterRequest,
   RenameChatRequest,
@@ -48,12 +46,8 @@ export const authService = {
     return HealthResponseSchema.parse(response.data);
   },
 
-  async logout(payload: LogoutRequest) {
-    const validatedPayload = LogoutRequestSchema.parse(payload);
-    const response = await apiClient.post(
-      "/api/v1/auth/logout",
-      validatedPayload,
-    );
+  async logout() {
+    const response = await apiClient.post("/api/v1/auth/logout", {});
     return response.data as { message: string };
   },
 

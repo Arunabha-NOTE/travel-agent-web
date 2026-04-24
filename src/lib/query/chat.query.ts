@@ -4,10 +4,16 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { clientEnv } from "@/config/env";
-import { getAccessToken } from "@/lib/auth/session";
 import { queryKeys } from "@/lib/query/query-keys";
-import { chatService } from "@/lib/service";
-import type { Message } from "@/lib/types";
+import { authService, chatService } from "@/lib/service";
+import type { Chat, Message } from "@/lib/types";
+
+const DEFAULT_CHAT_TITLES = new Set(["new chat", "", "new conversation"]);
+
+function needsGeneratedTitle(chat?: Pick<Chat, "title"> | null) {
+  const normalized = chat?.title?.trim().toLowerCase() ?? "";
+  return DEFAULT_CHAT_TITLES.has(normalized);
+}
 
 /** Fetch all messages for a chat room. */
 export function useMessagesQuery(chatId?: string) {
@@ -66,17 +72,15 @@ export function useSendMessage(chatId?: string) {
   const queryClient = useQueryClient();
   const [streamingContent, setStreamingContent] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const streamingIdleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const sendMessage = useCallback(
     async (content: string, agent: "langchain" | "langgraph" = "langchain") => {
       if (!chatId) return;
-
-      const token = getAccessToken();
-      if (!token) {
-        toast.error("Not authenticated");
-        return;
-      }
 
       // Optimistically add user message to the UI
       queryClient.setQueryData(
@@ -93,6 +97,7 @@ export function useSendMessage(chatId?: string) {
         },
       );
 
+      setIsPending(true);
       setIsStreaming(true);
       setStreamingContent("");
 
@@ -103,9 +108,9 @@ export function useSendMessage(chatId?: string) {
           `${clientEnv.NEXT_PUBLIC_API_BASE_URL}/api/v1/chats/${chatId}/messages`,
           {
             method: "POST",
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ content, agent }),
             signal: abortRef.current.signal,
@@ -147,7 +152,14 @@ export function useSendMessage(chatId?: string) {
             // Unescape newlines encoded in SSE
             const token = data.replace(/\\n/g, "\n");
             accumulated += token;
+            setIsStreaming(true);
             setStreamingContent(accumulated);
+            if (streamingIdleTimerRef.current) {
+              clearTimeout(streamingIdleTimerRef.current);
+            }
+            streamingIdleTimerRef.current = setTimeout(() => {
+              setIsStreaming(false);
+            }, 1800);
           }
         }
 
@@ -156,6 +168,7 @@ export function useSendMessage(chatId?: string) {
           if (!data.startsWith("[ERROR]") && data !== "[DONE]") {
             const token = data.replace(/\\n/g, "\n");
             accumulated += token;
+            setIsStreaming(true);
             setStreamingContent(accumulated);
           }
         }
@@ -170,6 +183,11 @@ export function useSendMessage(chatId?: string) {
           console.error("Stream error:", error);
         }
       } finally {
+        if (streamingIdleTimerRef.current) {
+          clearTimeout(streamingIdleTimerRef.current);
+          streamingIdleTimerRef.current = null;
+        }
+        setIsPending(false);
         setIsStreaming(false);
         setStreamingContent(null);
 
@@ -196,6 +214,32 @@ export function useSendMessage(chatId?: string) {
             queryKey: queryKeys.chat.detail(chatId),
           });
         }, 2000);
+
+        const retryTitleRefresh = async () => {
+          for (let attempt = 0; attempt < 5; attempt += 1) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
+            const refreshedChat = await queryClient.fetchQuery({
+              queryKey: queryKeys.chat.detail(chatId),
+              queryFn: () => authService.getChat(chatId),
+            });
+            const refreshedChats = await queryClient.fetchQuery({
+              queryKey: queryKeys.chat.list,
+              queryFn: authService.listChats,
+            });
+
+            if (
+              !needsGeneratedTitle(refreshedChat) ||
+              refreshedChats.some(
+                (chat) => chat.id === chatId && !needsGeneratedTitle(chat),
+              )
+            ) {
+              return;
+            }
+          }
+        };
+
+        void retryTitleRefresh();
       }
     },
     [chatId, queryClient],
@@ -205,5 +249,5 @@ export function useSendMessage(chatId?: string) {
     abortRef.current?.abort();
   }, []);
 
-  return { sendMessage, streamingContent, isStreaming, abort };
+  return { sendMessage, streamingContent, isStreaming, isPending, abort };
 }

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 type MessageListProps = {
   messages: Message[];
   streamingContent?: string | null;
+  showStreamingStatus?: boolean;
   className?: string;
 };
 
@@ -226,6 +227,7 @@ function MarkdownContent({ content }: { content: string }) {
 export function MessageList({
   messages,
   streamingContent,
+  showStreamingStatus = true,
   className,
 }: MessageListProps) {
   const { ChevronDown, Sparkles, UserCircle2 } = Icons;
@@ -349,18 +351,20 @@ export function MessageList({
 
                 {content && <MarkdownContent content={content} />}
 
-                <div className="mt-1 flex items-center gap-1.5 text-[10px] text-primary/70">
-                  <span className="flex gap-0.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:0ms]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:150ms]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:300ms]" />
-                  </span>
-                  {isThinking
-                    ? "Thinking..."
-                    : activeAgentStep
-                      ? activeAgentStep
-                      : "Generating..."}
-                </div>
+                {showStreamingStatus ? (
+                  <div className="mt-1 flex items-center gap-1.5 text-[10px] text-primary/70">
+                    <span className="flex gap-0.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:0ms]" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:150ms]" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:300ms]" />
+                    </span>
+                    {isThinking
+                      ? "Thinking..."
+                      : activeAgentStep
+                        ? activeAgentStep
+                        : "Generating..."}
+                  </div>
+                ) : null}
               </div>
             </div>
           );

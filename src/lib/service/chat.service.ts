@@ -23,12 +23,10 @@ export const chatService = {
    * Send a user message and receive a streaming SSE response.
    *
    * Returns a native EventSource-compatible ReadableStream reader.
-   * Pass the auth token manually because EventSource doesn't support headers natively.
    */
   async sendMessageStream(
     chatId: string,
     payload: SendMessageRequest,
-    authToken: string,
   ): Promise<ReadableStreamDefaultReader<Uint8Array>> {
     const validated = SendMessageRequestSchema.parse(payload);
 
@@ -36,9 +34,9 @@ export const chatService = {
       `${clientEnv.NEXT_PUBLIC_API_BASE_URL}/api/v1/chats/${chatId}/messages`,
       {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify(validated),
       },

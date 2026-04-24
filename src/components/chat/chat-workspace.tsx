@@ -39,7 +39,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
   } = useChatQuery(activeChatId);
   const { data: messages = [], isLoading: isMessagesLoading } =
     useMessagesQuery(activeChatId);
-  const { sendMessage, streamingContent, isStreaming } =
+  const { sendMessage, streamingContent, isStreaming, isPending } =
     useSendMessage(activeChatId);
 
   return (
@@ -80,7 +80,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
           {!isChatLoading && !isChatError && activeChat ? (
             <>
               <div className="flex-1 overflow-y-auto">
-                <div className="mx-auto max-w-3xl">
+                <div className="w-full">
                   {isMessagesLoading ? (
                     <div className="flex justify-center p-8 text-sm text-muted">
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -90,16 +90,17 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
                     <MessageList
                       messages={messages}
                       streamingContent={streamingContent}
+                      showStreamingStatus={isStreaming}
                     />
                   )}
                 </div>
               </div>
 
               <div className="shrink-0 border-t border-selection/50 px-4 py-4 md:px-6 mt-auto">
-                <div className="mx-auto max-w-3xl">
+                <div className="w-full">
                   <MessageInput
                     onSend={sendMessage}
-                    disabled={isStreaming}
+                    disabled={isPending}
                     placeholder={`Message ${stripThinkTags(activeChat.title)}...`}
                   />
                 </div>
@@ -121,7 +122,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
         >
           <ItineraryCard
             chatId={activeChatId}
-            liveUpdates={isStreaming}
+            liveUpdates={isPending}
             isFullscreen={isItineraryFullscreen}
             onToggleFullscreen={() => setIsItineraryFullscreen((prev) => !prev)}
           />

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { useLoginMutation, useLogoutMutation } from "@/lib/query";
+import { useLoginMutation } from "@/lib/query";
 import { loginFormSchema } from "@/lib/schemas";
 import type { LoginFormValues } from "@/lib/types";
 import { parseApiError } from "@/lib/utils/api-error";
@@ -26,7 +26,6 @@ import { parseApiError } from "@/lib/utils/api-error";
 export default function LoginPage() {
   const router = useRouter();
   const loginMutation = useLoginMutation();
-  const logoutMutation = useLogoutMutation();
   const [serverError, setServerError] = useState<string | null>(null);
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -135,16 +134,6 @@ export default function LoginPage() {
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? "Signing in..." : "Sign in"}
-            </Button>
-
-            <Button
-              className="w-full"
-              type="button"
-              variant="outline"
-              disabled={logoutMutation.isPending}
-              onClick={() => logoutMutation.mutate()}
-            >
-              {logoutMutation.isPending ? "Signing out..." : "Sign out"}
             </Button>
           </form>
         </Form>
