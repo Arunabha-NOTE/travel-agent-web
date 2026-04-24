@@ -10,6 +10,19 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: configDir,
   },
+  async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
+    // Strip trailing slash if present
+    const cleanBackendUrl = backendUrl.endsWith("/")
+      ? backendUrl.slice(0, -1)
+      : backendUrl;
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${cleanBackendUrl}/api/v1/:path*`,
+      },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {
@@ -47,19 +60,5 @@ export default withSentryConfig(nextConfig, {
       // Automatically tree-shake Sentry logger statements to reduce bundle size
       removeDebugLogging: true,
     },
-  },
-
-  async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
-    // Strip trailing slash if present
-    const cleanBackendUrl = backendUrl.endsWith("/")
-      ? backendUrl.slice(0, -1)
-      : backendUrl;
-    return [
-      {
-        source: "/api/v1/:path*",
-        destination: `${cleanBackendUrl}/api/v1/:path*`,
-      },
-    ];
   },
 });
