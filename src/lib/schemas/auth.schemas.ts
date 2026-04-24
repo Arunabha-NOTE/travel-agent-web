@@ -1,7 +1,11 @@
 import { z } from "zod";
 
 const CHAT_TITLE_MAX_LENGTH = 80;
-const CHAT_TITLE_CONTROL_CHAR_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/u;
+// biome-ignore lint/complexity/useRegexLiterals: necessary to bypass control character warnings
+const CHAT_TITLE_CONTROL_CHAR_RE = new RegExp(
+  "[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F-\\x9F]",
+  "u",
+);
 const CHAT_TITLE_UNSUPPORTED_CHAR_RE = /[\uA9C5\u{1242B}]/u;
 
 export const LoginRequestSchema = z.object({
@@ -15,7 +19,10 @@ export const LoginResponseSchema = z.object({
 
 export const RegisterRequestSchema = z.object({
   email: z.email(),
-  password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password cannot exceed 128 characters"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128, "Password cannot exceed 128 characters"),
 });
 
 export const LogoutRequestSchema = z.object({}).default({});

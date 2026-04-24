@@ -13,13 +13,18 @@ type MessageInputProps = {
   placeholder?: string;
 };
 
-const CONTROL_CHAR_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/u;
+// biome-ignore lint/complexity/useRegexLiterals: necessary to bypass control character warnings
+const CONTROL_CHAR_RE = new RegExp(
+  "[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F-\\x9F]",
+  "u",
+);
 const KNOWN_PROBLEMATIC_CHAR_RE = /\uA9C5/u;
 
 function validateMessageContent(value: string): string | null {
   const trimmed = value.trim();
   if (!trimmed) return "Message cannot be empty.";
-  if (trimmed.length > 8192) return "Message is too long (max 8192 characters).";
+  if (trimmed.length > 8192)
+    return "Message is too long (max 8192 characters).";
   if (CONTROL_CHAR_RE.test(trimmed)) {
     return "Message contains unsupported control characters.";
   }
@@ -43,6 +48,7 @@ export function MessageInput({
     value.trim().length > 0 && validateMessageContent(value) !== null;
 
   // Auto-resize textarea
+  // biome-ignore lint/correctness/useExhaustiveDependencies: necessary to trigger resize on value change
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
