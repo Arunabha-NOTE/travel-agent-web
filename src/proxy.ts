@@ -12,7 +12,7 @@ function isAuthRoute(pathname: string) {
   return authConfig.authRoutes.includes(pathname);
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get(
     authConfig.accessTokenCookieName,
