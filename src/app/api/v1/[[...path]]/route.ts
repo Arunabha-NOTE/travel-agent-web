@@ -25,7 +25,10 @@ export async function ANY(
   // Inject standard proxy headers to help the backend generate correct URLs/redirects
   headers.set("X-Forwarded-Host", originalHost);
   headers.set("X-Forwarded-Proto", "https");
-  headers.set("X-Forwarded-For", request.ip || "");
+  headers.set(
+    "X-Forwarded-For",
+    request.headers.get("x-forwarded-for") || "",
+  );
 
   // Read the HttpOnly cookie and inject it as a Bearer token
   const cookieStore = await cookies();
