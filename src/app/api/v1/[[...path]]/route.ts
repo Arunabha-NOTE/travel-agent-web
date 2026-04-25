@@ -30,10 +30,7 @@ export async function ANY(
   // Inject standard proxy headers to help the backend generate correct URLs/redirects
   headers.set("X-Forwarded-Host", originalHost);
   headers.set("X-Forwarded-Proto", "https");
-  headers.set(
-    "X-Forwarded-For",
-    request.headers.get("x-forwarded-for") || "",
-  );
+  headers.set("X-Forwarded-For", request.headers.get("x-forwarded-for") || "");
 
   // Read the HttpOnly cookie and inject it as a Bearer token
   const cookieStore = await cookies();
@@ -44,15 +41,19 @@ export async function ANY(
     headers.set("Authorization", `Bearer ${token}`);
   }
 
+  // Pre-read the body as an ArrayBuffer to allow reuse if we need to follow redirects
+  // This is necessary because request.body is a stream and can only be consumed once.
+  const body =
+    request.method !== "GET" && request.method !== "HEAD"
+      ? await request.arrayBuffer()
+      : undefined;
+
   // Forward the request
   try {
     let response = await fetch(url.toString(), {
       method: request.method,
       headers,
-      body:
-        request.method !== "GET" && request.method !== "HEAD"
-          ? await request.arrayBuffer()
-          : undefined,
+      body,
       // We handle redirects manually to ensure Authorization headers are preserved
       // when the backend redirects (e.g., from http to https or slash adjustments).
       redirect: "manual",
@@ -82,10 +83,7 @@ export async function ANY(
         response = await fetch(locationUrl.toString(), {
           method: request.method,
           headers,
-          body:
-            request.method !== "GET" && request.method !== "HEAD"
-              ? await request.arrayBuffer()
-              : undefined,
+          body,
           redirect: "manual",
           cache: "no-store",
         });
