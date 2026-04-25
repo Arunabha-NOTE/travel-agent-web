@@ -17,11 +17,15 @@ export async function ANY(
   url.search = request.nextUrl.search;
 
   // Forward all headers except host and accept-encoding
-  // Removing accept-encoding prevents the backend from sending compressed data
-  // that fetch() might decompress, leading to mismatched content-encoding headers.
   const headers = new Headers(request.headers);
+  const originalHost = headers.get("host") || request.nextUrl.host;
   headers.delete("host");
   headers.delete("accept-encoding");
+
+  // Inject standard proxy headers to help the backend generate correct URLs/redirects
+  headers.set("X-Forwarded-Host", originalHost);
+  headers.set("X-Forwarded-Proto", "https");
+  headers.set("X-Forwarded-For", request.ip || "");
 
   // Read the HttpOnly cookie and inject it as a Bearer token
   const cookieStore = await cookies();
@@ -34,18 +38,44 @@ export async function ANY(
 
   // Forward the request
   try {
-    const response = await fetch(url.toString(), {
+    let response = await fetch(url.toString(), {
       method: request.method,
       headers,
       body:
         request.method !== "GET" && request.method !== "HEAD"
           ? await request.arrayBuffer()
           : undefined,
-      // Follow redirects internally to avoid browser-level redirect loops (FastAPI trailing slashes, etc.)
-      redirect: "follow",
+      // We handle redirects manually to ensure Authorization headers are preserved
+      // when the backend redirects (e.g., from http to https or slash adjustments).
+      redirect: "manual",
       // disable cache to ensure fresh data
       cache: "no-store",
     });
+
+    // Handle internal redirects (like trailing slash adjustments) manually.
+    // This is necessary because native fetch() drops Authorization headers
+    // when redirecting across protocols (e.g., https -> http).
+    if (response.status === 307 || response.status === 308) {
+      const location = response.headers.get("location");
+      if (location) {
+        const locationUrl = new URL(location, backendUrl);
+        const backendHostname = new URL(backendUrl).hostname;
+
+        if (locationUrl.hostname === backendHostname) {
+          // Re-fetch with the same headers to the new location
+          response = await fetch(locationUrl.toString(), {
+            method: request.method,
+            headers,
+            body:
+              request.method !== "GET" && request.method !== "HEAD"
+                ? await request.arrayBuffer()
+                : undefined,
+            redirect: "manual",
+            cache: "no-store",
+          });
+        }
+      }
+    }
 
     // Forward the response back to the client
     const responseHeaders = new Headers(response.headers);
@@ -56,17 +86,13 @@ export async function ANY(
     responseHeaders.delete("content-encoding");
     responseHeaders.delete("content-length");
 
-    // Rewrite Location header to prevent redirects bypassing the proxy
+    // Rewrite Location header for any remaining redirects (e.g., external ones)
     const location = responseHeaders.get("location");
     if (location) {
       try {
-        // Parse the location. If it's relative, the backendUrl acts as the base.
         const locationUrl = new URL(location, backendUrl);
         const backendHostname = new URL(backendUrl).hostname;
 
-        // If the redirect points to the backend hostname (ignoring http/https protocol
-        // mismatches caused by SSL-terminating load balancers), rewrite it to be relative
-        // to the frontend origin. This ensures the browser stays on the proxy.
         if (locationUrl.hostname === backendHostname) {
           responseHeaders.set(
             "location",
@@ -74,8 +100,6 @@ export async function ANY(
           );
         }
       } catch (error) {
-        // If parsing fails, it might already be a relative path or an external URL.
-        // We leave it as-is to avoid breaking valid external redirects.
         console.error("Failed to parse Location header:", error);
       }
     }
