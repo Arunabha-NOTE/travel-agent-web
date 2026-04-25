@@ -5,11 +5,12 @@ import { clientEnv } from "@/config/env";
 
 export async function ANY(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
+  { params }: { params: Promise<{ path?: string[] }> },
 ) {
   const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
   const p = await params;
-  const path = p.path.join("/");
+  const pathArray = p.path || [];
+  const path = pathArray.join("/");
 
   // Construct the backend URL
   const url = new URL(`${backendUrl}/${path}`);
