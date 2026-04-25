@@ -12,8 +12,13 @@ export async function ANY(
   const pathArray = p.path || [];
   const path = pathArray.join("/");
 
+  // Detect trailing slash to prevent unnecessary redirects
+  const hasTrailingSlash = request.nextUrl.pathname.endsWith("/");
+
   // Construct the backend URL (Prepending /api/v1 since this proxy is mounted at /api/v1)
-  const url = new URL(`${backendUrl}/api/v1/${path}`);
+  const url = new URL(
+    `${backendUrl}/api/v1/${path}${hasTrailingSlash && path ? "/" : ""}`,
+  );
   url.search = request.nextUrl.search;
 
   // Forward all headers except host and accept-encoding
@@ -55,28 +60,38 @@ export async function ANY(
       cache: "no-store",
     });
 
-    // Handle internal redirects (like trailing slash adjustments) manually.
-    // This is necessary because native fetch() drops Authorization headers
-    // when redirecting across protocols (e.g., https -> http).
-    if (response.status === 307 || response.status === 308) {
+    // Follow internal redirects (like trailing slash adjustments or http -> https) manually.
+    // Native fetch() drops Authorization headers on protocol downgrades or cross-origin redirects.
+    let redirectCount = 0;
+    while (
+      (response.status === 301 ||
+        response.status === 302 ||
+        response.status === 307 ||
+        response.status === 308) &&
+      redirectCount < 3
+    ) {
       const location = response.headers.get("location");
-      if (location) {
-        const locationUrl = new URL(location, backendUrl);
-        const backendHostname = new URL(backendUrl).hostname;
+      if (!location) break;
 
-        if (locationUrl.hostname === backendHostname) {
-          // Re-fetch with the same headers to the new location
-          response = await fetch(locationUrl.toString(), {
-            method: request.method,
-            headers,
-            body:
-              request.method !== "GET" && request.method !== "HEAD"
-                ? await request.arrayBuffer()
-                : undefined,
-            redirect: "manual",
-            cache: "no-store",
-          });
-        }
+      const locationUrl = new URL(location, url.toString());
+      const backendHostname = new URL(backendUrl).hostname;
+
+      // Only follow if it's still pointing to our backend
+      if (locationUrl.hostname === backendHostname) {
+        redirectCount++;
+        response = await fetch(locationUrl.toString(), {
+          method: request.method,
+          headers,
+          body:
+            request.method !== "GET" && request.method !== "HEAD"
+              ? await request.arrayBuffer()
+              : undefined,
+          redirect: "manual",
+          cache: "no-store",
+        });
+      } else {
+        // External redirect, let the browser handle it
+        break;
       }
     }
 
