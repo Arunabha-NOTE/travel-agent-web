@@ -48,6 +48,19 @@ export async function ANY(
     // Remove Set-Cookie from proxied responses to prevent cross-domain pollution
     responseHeaders.delete("set-cookie");
 
+    // Rewrite Location header to prevent redirects bypassing the proxy
+    const location = responseHeaders.get("location");
+    if (location) {
+      if (location.startsWith(backendUrl)) {
+        responseHeaders.set(
+          "location",
+          location.replace(backendUrl, `${request.nextUrl.origin}/api/proxy`),
+        );
+      } else if (location.startsWith("/")) {
+        responseHeaders.set("location", `/api/proxy${location}`);
+      }
+    }
+
     return new NextResponse(response.body, {
       status: response.status,
       headers: responseHeaders,
