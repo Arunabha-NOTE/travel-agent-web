@@ -12,8 +12,15 @@ export async function ANY(
   const pathArray = p.path || [];
   const path = pathArray.join("/");
 
+  // Detect trailing slash to prevent redirect loops with FastAPI
+  // We ensure we don't double-slash if the path is empty
+  const needsTrailingSlash =
+    request.nextUrl.pathname.endsWith("/") && !path.endsWith("/");
+
   // Construct the backend URL (Prepending /api/v1 since this proxy is mounted at /api/v1)
-  const url = new URL(`${backendUrl}/api/v1/${path}`);
+  const url = new URL(
+    `${backendUrl}/api/v1/${path}${needsTrailingSlash ? "/" : ""}`,
+  );
   url.search = request.nextUrl.search;
 
   // Forward all headers except host
