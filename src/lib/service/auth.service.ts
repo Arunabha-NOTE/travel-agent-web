@@ -41,7 +41,7 @@ export const authService = {
   },
 
   async healthCheck() {
-    const response = await apiClient.get("/");
+    const response = await apiClient.get("/api/health");
     return HealthResponseSchema.parse(response.data);
   },
 

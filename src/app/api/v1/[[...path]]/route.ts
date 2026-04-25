@@ -12,8 +12,8 @@ export async function ANY(
   const pathArray = p.path || [];
   const path = pathArray.join("/");
 
-  // Construct the backend URL
-  const url = new URL(`${backendUrl}/${path}`);
+  // Construct the backend URL (Prepending /api/v1 since this proxy is mounted at /api/v1)
+  const url = new URL(`${backendUrl}/api/v1/${path}`);
   url.search = request.nextUrl.search;
 
   // Forward all headers except host
@@ -54,10 +54,8 @@ export async function ANY(
       if (location.startsWith(backendUrl)) {
         responseHeaders.set(
           "location",
-          location.replace(backendUrl, `${request.nextUrl.origin}/api/proxy`),
+          location.replace(backendUrl, request.nextUrl.origin),
         );
-      } else if (location.startsWith("/")) {
-        responseHeaders.set("location", `/api/proxy${location}`);
       }
     }
 
