@@ -54,11 +54,12 @@ export async function ANY(
       try {
         // Parse the location. If it's relative, the backendUrl acts as the base.
         const locationUrl = new URL(location, backendUrl);
-        const backendOrigin = new URL(backendUrl).origin;
+        const backendHostname = new URL(backendUrl).hostname;
 
-        // If the redirect points to the backend origin, rewrite it to be relative
+        // If the redirect points to the backend hostname (ignoring http/https protocol
+        // mismatches caused by SSL-terminating load balancers), rewrite it to be relative
         // to the frontend origin. This ensures the browser stays on the proxy.
-        if (locationUrl.origin === backendOrigin) {
+        if (locationUrl.hostname === backendHostname) {
           responseHeaders.set(
             "location",
             locationUrl.pathname + locationUrl.search,
