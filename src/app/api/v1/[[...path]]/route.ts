@@ -51,11 +51,23 @@ export async function ANY(
     // Rewrite Location header to prevent redirects bypassing the proxy
     const location = responseHeaders.get("location");
     if (location) {
-      if (location.startsWith(backendUrl)) {
-        responseHeaders.set(
-          "location",
-          location.replace(backendUrl, request.nextUrl.origin),
-        );
+      try {
+        // Parse the location. If it's relative, the backendUrl acts as the base.
+        const locationUrl = new URL(location, backendUrl);
+        const backendOrigin = new URL(backendUrl).origin;
+
+        // If the redirect points to the backend origin, rewrite it to be relative
+        // to the frontend origin. This ensures the browser stays on the proxy.
+        if (locationUrl.origin === backendOrigin) {
+          responseHeaders.set(
+            "location",
+            locationUrl.pathname + locationUrl.search,
+          );
+        }
+      } catch (error) {
+        // If parsing fails, it might already be a relative path or an external URL.
+        // We leave it as-is to avoid breaking valid external redirects.
+        console.error("Failed to parse Location header:", error);
       }
     }
 
