@@ -23,9 +23,12 @@ export async function ANY(
   );
   url.search = request.nextUrl.search;
 
-  // Forward all headers except host
+  // Forward all headers except host and accept-encoding
+  // Removing accept-encoding prevents the backend from sending compressed data
+  // that fetch() might decompress, leading to mismatched content-encoding headers.
   const headers = new Headers(request.headers);
   headers.delete("host");
+  headers.delete("accept-encoding");
 
   // Read the HttpOnly cookie and inject it as a Bearer token
   const cookieStore = await cookies();
@@ -54,6 +57,10 @@ export async function ANY(
     const responseHeaders = new Headers(response.headers);
     // Remove Set-Cookie from proxied responses to prevent cross-domain pollution
     responseHeaders.delete("set-cookie");
+
+    // Remove compression headers to let Next.js handle encoding
+    responseHeaders.delete("content-encoding");
+    responseHeaders.delete("content-length");
 
     // Rewrite Location header to prevent redirects bypassing the proxy
     const location = responseHeaders.get("location");
