@@ -8,7 +8,7 @@ import { useProfileQuery } from "@/lib/query";
 
 export function LandingNavbar() {
   const { PlaneTakeoff } = Icons;
-  const { data: profile, isLoading } = useProfileQuery();
+  const { data: profile } = useProfileQuery();
 
   const isAuthenticated = !!profile;
 
