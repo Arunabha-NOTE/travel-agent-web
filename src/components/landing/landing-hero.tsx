@@ -5,8 +5,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Globe } from "@/components/ui/globe";
 import { TypingText } from "@/components/ui/typing-text";
+import { useProfileQuery } from "@/lib/query";
 
 export function LandingHero() {
+  const { data: profile, isLoading } = useProfileQuery();
+  const isAuthenticated = !!profile;
+
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 pb-12">
       {/* Grid background */}
@@ -38,21 +42,35 @@ export function LandingHero() {
 
         {/* CTA buttons */}
         <div className="anim-fade-up delay-3 flex flex-wrap items-center justify-center gap-3">
-          <Button
-            asChild
-            size="lg"
-            className="h-12 rounded-xl border-0 px-8 text-sm font-semibold"
-          >
-            <Link href="/register">Start Planning Free →</Link>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="h-12 rounded-xl border border-selection bg-background-dark/55 px-8 text-sm font-medium text-foreground/75 backdrop-blur transition-all hover:border-purple/50 hover:bg-surface/55 hover:text-foreground"
-          >
-            <Link href="/login">Sign In</Link>
-          </Button>
+          {isLoading ? (
+            <div className="h-12 w-40 animate-pulse rounded-xl bg-surface/45" />
+          ) : isAuthenticated ? (
+            <Button
+              asChild
+              size="lg"
+              className="h-12 rounded-xl border-0 px-8 text-sm font-semibold"
+            >
+              <Link href="/chat">Continue to Chat →</Link>
+            </Button>
+          ) : (
+            <>
+              <Button
+                asChild
+                size="lg"
+                className="h-12 rounded-xl border-0 px-8 text-sm font-semibold"
+              >
+                <Link href="/register">Start Planning Free →</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="h-12 rounded-xl border border-selection bg-background-dark/55 px-8 text-sm font-medium text-foreground/75 backdrop-blur transition-all hover:border-purple/50 hover:bg-surface/55 hover:text-foreground"
+              >
+                <Link href="/login">Sign In</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </section>

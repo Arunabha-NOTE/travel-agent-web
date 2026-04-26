@@ -1,10 +1,16 @@
+"use client";
+
 import Link from "next/link";
 
 import { Icons } from "@/components/icons/icon";
 import { Button } from "@/components/ui/button";
+import { useProfileQuery } from "@/lib/query";
 
 export function LandingNavbar() {
   const { PlaneTakeoff } = Icons;
+  const { data: profile, isLoading } = useProfileQuery();
+
+  const isAuthenticated = !!profile;
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-selection/60 bg-background-dark/70 backdrop-blur-xl">
@@ -21,19 +27,32 @@ export function LandingNavbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            asChild
-            className="h-9 text-sm text-muted hover:bg-surface/45 hover:text-foreground"
-          >
-            <Link href="/login">Sign In</Link>
-          </Button>
-          <Button
-            asChild
-            className="h-9 rounded-lg border-0 px-4 text-sm font-medium"
-          >
-            <Link href="/register">Get Started</Link>
-          </Button>
+          {isLoading ? (
+            <div className="h-9 w-24 animate-pulse rounded-lg bg-surface/45" />
+          ) : isAuthenticated ? (
+            <Button
+              asChild
+              className="h-9 rounded-lg border-0 px-4 text-sm font-medium"
+            >
+              <Link href="/chat">Go to Chat</Link>
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                asChild
+                className="h-9 text-sm text-muted hover:bg-surface/45 hover:text-foreground"
+              >
+                <Link href="/login">Sign In</Link>
+              </Button>
+              <Button
+                asChild
+                className="h-9 rounded-lg border-0 px-4 text-sm font-medium"
+              >
+                <Link href="/register">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
       </nav>
     </header>
