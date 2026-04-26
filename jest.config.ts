@@ -16,6 +16,9 @@ const customJestConfig = {
   ],
   coverageDirectory: "coverage",
   coverageReporters: ["lcov", "text"],
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/src/$1",
+  },
 };
 
 module.exports = createJestConfig(customJestConfig);

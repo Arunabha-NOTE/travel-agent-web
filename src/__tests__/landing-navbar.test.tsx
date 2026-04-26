@@ -2,8 +2,14 @@ import { render, screen } from "@testing-library/react";
 import { LandingNavbar } from "@/components/landing/landing-navbar";
 import { useProfileQuery } from "@/lib/query";
 
-jest.mock("@/lib/query", () => ({
+jest.mock("../lib/query", () => ({
   useProfileQuery: jest.fn(),
+}));
+
+jest.mock("../components/icons/icon", () => ({
+  Icons: {
+    PlaneTakeoff: () => <div data-testid="plane-icon" />,
+  },
 }));
 
 describe("LandingNavbar", () => {

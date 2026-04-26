@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/client";
 import { chatService } from "@/lib/service/chat.service";
 
-jest.mock("@/lib/client", () => ({
+jest.mock("../lib/client", () => ({
   apiClient: {
     get: jest.fn(),
   },
@@ -13,7 +13,7 @@ describe("chatService", () => {
       const mockMessages = [
         {
           id: 1,
-          chat_room_id: "uuid",
+          chat_room_id: "550e8400-e29b-41d4-a716-446655440000",
           sender_role: "user",
           content: "Hello",
           created_at: new Date().toISOString(),
