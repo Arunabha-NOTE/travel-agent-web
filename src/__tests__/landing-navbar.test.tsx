@@ -13,14 +13,14 @@ jest.mock("../components/icons/icon", () => ({
 }));
 
 describe("LandingNavbar", () => {
-  it("should show loading state", () => {
+  it("should show Sign In even when loading (optimistic)", () => {
     (useProfileQuery as jest.Mock).mockReturnValue({
       data: null,
       isLoading: true,
     });
 
     render(<LandingNavbar />);
-    expect(screen.getByRole("banner")).toBeInTheDocument();
+    expect(screen.getByText("Sign In")).toBeInTheDocument();
   });
 
   it("should show Go to Chat when authenticated", () => {
