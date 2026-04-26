@@ -8,7 +8,7 @@ import { useProfileQuery } from "@/lib/query";
 
 export function LandingNavbar() {
   const { PlaneTakeoff } = Icons;
-  const { data: profile, isLoading } = useProfileQuery();
+  const { data: profile } = useProfileQuery();
 
   const isAuthenticated = !!profile;
 
@@ -27,9 +27,7 @@ export function LandingNavbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {isLoading ? (
-            <div className="h-9 w-24 animate-pulse rounded-lg bg-surface/45" />
-          ) : isAuthenticated ? (
+          {isAuthenticated ? (
             <Button
               asChild
               className="h-9 rounded-lg border-0 px-4 text-sm font-medium"
