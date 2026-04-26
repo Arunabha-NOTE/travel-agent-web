@@ -45,7 +45,8 @@ export function useItineraryQuery(chatId?: string, liveUpdates = false) {
     },
     enabled: typeof chatId === "string" && chatId.length > 0,
     staleTime: 0,
-    refetchInterval: liveUpdates ? 3000 : false,
+    // Reduce polling frequency and handle 404s gracefully in queryFn to avoid console spam
+    refetchInterval: liveUpdates ? 6000 : false,
     refetchIntervalInBackground: false,
     retry: (failureCount, error: unknown) => {
       // Don't retry on 404 (no itinerary yet)
@@ -158,8 +159,9 @@ export function useSendMessage(chatId?: string) {
               clearTimeout(streamingIdleTimerRef.current);
             }
             streamingIdleTimerRef.current = setTimeout(() => {
+              // Only clear if we are not still decoding (e.g. slow network)
               setIsStreaming(false);
-            }, 1800);
+            }, 3500); // Increased buffer for slow tool usage/thought blocks
           }
         }
 
@@ -187,12 +189,10 @@ export function useSendMessage(chatId?: string) {
           clearTimeout(streamingIdleTimerRef.current);
           streamingIdleTimerRef.current = null;
         }
-        setIsPending(false);
-        setIsStreaming(false);
-        setStreamingContent(null);
-
         // Refresh messages and itinerary
-        await Promise.all([
+        // CRITICAL: We await the messages invalidation so the stable list is updated
+        // BEFORE we clear the streaming state, preventing the "flicker" gap.
+        const refreshPromise = Promise.all([
           queryClient.invalidateQueries({
             queryKey: queryKeys.message.list(chatId),
           }),
@@ -206,6 +206,12 @@ export function useSendMessage(chatId?: string) {
             queryKey: queryKeys.chat.detail(chatId),
           }),
         ]);
+
+        await refreshPromise;
+
+        setIsPending(false);
+        setIsStreaming(false);
+        setStreamingContent(null);
 
         // Auto-title runs in background on the backend; recheck once more shortly after.
         setTimeout(() => {

@@ -147,7 +147,7 @@ export function AppSidebar() {
             <p className="text-xs font-medium text-muted">Recent chats</p>
           </div>
 
-          <div className="flex-1 space-y-2 overflow-y-auto">
+          <div className="flex-1 space-y-2 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {chatsQuery.isLoading ? (
               <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted">
                 <Loader2 className="h-4 w-4 animate-spin" />
