@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Suggestions } from "@/components/chat/suggestions";
 import { Icons } from "@/components/icons/icon";
 import type { Message } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ type MessageListProps = {
   streamingContent?: string | null;
   showStreamingStatus?: boolean;
   className?: string;
+  onSuggestionClick?: (query: string) => void;
 };
 
 const THINK_CLOSED_RE = /<think>([\s\S]*?)<\/think>/g;
@@ -228,14 +230,21 @@ export function MessageList({
   messages,
   streamingContent,
   showStreamingStatus = true,
+  onSuggestionClick,
   className,
 }: MessageListProps) {
   const { ChevronDown, Sparkles, UserCircle2 } = Icons;
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  });
+    if (messages.length > 0 || streamingContent) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages.length, streamingContent]);
+
+  if (messages.length === 0 && !streamingContent) {
+    return <Suggestions onClick={onSuggestionClick ?? (() => {})} />;
+  }
 
   return (
     <div className={cn("flex flex-col space-y-6 px-4 py-6 md:px-6", className)}>

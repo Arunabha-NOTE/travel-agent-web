@@ -80,9 +80,9 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
           {!isChatLoading && !isChatError && activeChat ? (
             <>
               <div className="flex-1 overflow-y-auto">
-                <div className="w-full">
+                <div className="w-full h-full">
                   {isMessagesLoading ? (
-                    <div className="flex justify-center p-8 text-sm text-muted">
+                    <div className="flex h-full items-center justify-center p-8 text-sm text-muted">
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       Loading messages...
                     </div>
@@ -91,6 +91,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
                       messages={messages}
                       streamingContent={streamingContent}
                       showStreamingStatus={isStreaming}
+                      onSuggestionClick={(query) => sendMessage(query)}
                     />
                   )}
                 </div>
