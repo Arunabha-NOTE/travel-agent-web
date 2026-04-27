@@ -28,14 +28,6 @@ export default async function PublicItineraryPage({
             <h1 className="text-2xl font-bold tracking-tight text-white">
               Shared Itinerary
             </h1>
-            <p className="text-sm text-white/40 mt-1">
-              Live view of the latest travel plan
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider">
-              Public View
-            </span>
           </div>
         </header>
 
@@ -45,7 +37,7 @@ export default async function PublicItineraryPage({
 
         <footer className="mt-6 text-center">
           <p className="text-[10px] text-white/20">
-            Created with Travel Concierge AI · Real-time updates enabled
+            Created with Travel AI
           </p>
         </footer>
       </div>
