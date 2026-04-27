@@ -11,6 +11,7 @@ import {
   ChevronUp,
   Clock,
   Cloud,
+  Copy,
   DollarSign,
   ExternalLink,
   Globe,
@@ -23,6 +24,7 @@ import {
   Minimize2,
   Plane,
   PlaneTakeoff,
+  Share2,
   ShoppingBag,
   Star,
   Sun,
@@ -32,7 +34,11 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { useItineraryQuery } from "@/lib/query/chat.query";
+import { toast } from "sonner";
+import {
+  useItineraryQuery,
+  usePublicItineraryQuery,
+} from "@/lib/query/chat.query";
 import type {
   Activity,
   FlightSegment,
@@ -618,6 +624,7 @@ interface ItineraryCardProps {
   chatId: string;
   liveUpdates?: boolean;
   isFullscreen?: boolean;
+  isPublic?: boolean;
   onToggleFullscreen?: () => void;
 }
 
@@ -625,11 +632,17 @@ export function ItineraryCard({
   chatId,
   liveUpdates = false,
   isFullscreen,
+  isPublic = false,
   onToggleFullscreen,
 }: ItineraryCardProps) {
-  const { data, isLoading, isError } = useItineraryQuery(chatId, liveUpdates);
-  // Hook must be called unconditionally before any early returns
+  const authenticatedQuery = useItineraryQuery(chatId, liveUpdates);
+  const publicQuery = usePublicItineraryQuery(chatId);
+  const { data, isLoading, isError } = isPublic
+    ? publicQuery
+    : authenticatedQuery;
+
   const [activeTab, setActiveTab] = useState<"plan" | "map">("plan");
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   if (isLoading) {
     return (
@@ -722,6 +735,16 @@ export function ItineraryCard({
           )}
         </button>
         <div className="flex-1" />
+        {!isPublic && (
+          <button
+            type="button"
+            onClick={() => setShowShareDialog(true)}
+            className="p-1.5 text-white/40 hover:text-white/70 hover:bg-white/10 rounded-lg transition-colors"
+            title="Share Itinerary"
+          >
+            <Share2 size={14} />
+          </button>
+        )}
         {onToggleFullscreen && (
           <button
             type="button"
@@ -733,6 +756,56 @@ export function ItineraryCard({
           </button>
         )}
       </div>
+      {/* Share Dialog */}
+      {showShareDialog && (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6 animate-in fade-in">
+          <div className="w-full max-w-sm bg-[#1A1A1A] border border-white/10 rounded-2xl p-6 shadow-2xl scale-in-center">
+            <h3 className="text-sm font-semibold text-white mb-2">
+              Share Itinerary
+            </h3>
+            <p className="text-xs text-white/50 mb-6 leading-relaxed">
+              Anyone with the link can view this itinerary. Private chat
+              messages are never shared.
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
+                <p className="text-[10px] text-white/30 uppercase tracking-wider mb-2 font-bold">
+                  Public Share Link
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 bg-black/20 rounded-lg px-3 py-2 border border-white/5 overflow-hidden">
+                    <p className="text-xs text-white/60 truncate select-all">
+                      {window.location.origin}/share/{chatId}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/share/${chatId}`,
+                      );
+                      toast.success("Link copied!");
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded-lg transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+                  >
+                    <Copy size={12} />
+                    Copy
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowShareDialog(false)}
+              className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/70 transition-colors border border-white/10"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
       {/* Map tab */}
       {activeTab === "map" && (
         <div className="flex-1 min-h-0 m-3 rounded-xl overflow-hidden border border-white/10">

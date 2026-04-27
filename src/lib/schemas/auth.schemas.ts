@@ -60,6 +60,7 @@ export const ChatSchema = z.object({
   id: z.string().uuid(),
   user_id: z.number().int().positive(),
   title: z.string().min(1),
+  is_public: z.boolean().default(false),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 });

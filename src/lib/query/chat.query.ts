@@ -257,3 +257,36 @@ export function useSendMessage(chatId?: string) {
 
   return { sendMessage, streamingContent, isStreaming, isPending, abort };
 }
+
+/** Toggle public share status for a chat. */
+export function useShareChat() {
+  const queryClient = useQueryClient();
+
+  return {
+    shareChat: async (chatId: string, isPublic: boolean) => {
+      try {
+        const result = await chatService.shareChat(chatId, isPublic);
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.chat.detail(chatId),
+        });
+        toast.success(
+          result ? "Itinerary shared successfully" : "Itinerary unshared",
+        );
+        return result;
+      } catch (error) {
+        toast.error("Failed to update share status");
+        throw error;
+      }
+    },
+  };
+}
+
+/** Publicly accessible itinerary query (no auth required by backend). */
+export function usePublicItineraryQuery(chatId?: string) {
+  return useQuery({
+    queryKey: ["itinerary", "public", chatId],
+    queryFn: () => chatService.getPublicItinerary(chatId as string),
+    enabled: typeof chatId === "string" && chatId.length > 0,
+    staleTime: 5 * 60 * 1000, // 5 mins
+  });
+}

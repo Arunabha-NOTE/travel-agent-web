@@ -94,4 +94,32 @@ export const chatService = {
       throw error;
     }
   },
+
+  /** Toggle public visibility of a chat itinerary. */
+  async shareChat(chatId: string, isPublic: boolean): Promise<boolean> {
+    const response = await apiClient.patch(`/api/v1/chats/${chatId}/share`, {
+      is_public: isPublic,
+    });
+    return response.data.is_public;
+  },
+
+  /** Get the public itinerary for a shared chat. */
+  async getPublicItinerary(chatId: string): Promise<Itinerary | null> {
+    try {
+      const response = await apiClient.get(
+        `/api/v1/chats/${chatId}/itinerary/public`,
+      );
+      return ItinerarySchema.parse(response.data);
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        (error as { response?: { status?: number } }).response?.status === 404
+      ) {
+        return null;
+      }
+      throw error;
+    }
+  },
 };
