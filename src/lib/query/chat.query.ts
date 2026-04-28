@@ -30,17 +30,14 @@ export function useItineraryQuery(chatId?: string, liveUpdates = false) {
   return useQuery({
     queryKey: queryKeys.itinerary.detail(chatId),
     queryFn: async () => {
-      console.debug("[useItineraryQuery] fetching", { chatId, liveUpdates });
       const data = await chatService.getItinerary(chatId as string);
       if (!data) {
-        console.debug("[useItineraryQuery] empty itinerary", { chatId });
         return null;
       }
 
       const days = Array.isArray(data.itinerary_data?.days)
         ? data.itinerary_data.days.length
         : 0;
-      console.debug("[useItineraryQuery] fetched", { chatId, days });
       return data;
     },
     enabled: typeof chatId === "string" && chatId.length > 0,
@@ -182,7 +179,6 @@ export function useSendMessage(chatId?: string) {
           (error as { name?: string }).name !== "AbortError"
         ) {
           toast.error("Failed to send message");
-          console.error("Stream error:", error);
         }
       } finally {
         if (streamingIdleTimerRef.current) {

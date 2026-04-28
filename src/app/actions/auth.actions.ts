@@ -97,7 +97,7 @@ export async function logoutAction() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token: refreshToken }),
       cache: "no-store",
-    }).catch(console.error);
+    }).catch(() => {});
   }
 
   cookieStore.delete(clientEnv.NEXT_PUBLIC_ACCESS_TOKEN_COOKIE);

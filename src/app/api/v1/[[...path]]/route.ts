@@ -116,7 +116,7 @@ export async function ANY(
           );
         }
       } catch (error) {
-        console.error("Failed to parse Location header:", error);
+        // Skip parsing if Location header is invalid
       }
     }
 
@@ -125,7 +125,6 @@ export async function ANY(
       headers: responseHeaders,
     });
   } catch (error) {
-    console.error("Proxy error:", error);
     return new NextResponse(
       JSON.stringify({ message: "Internal Proxy Error" }),
       {

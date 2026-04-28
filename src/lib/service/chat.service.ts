@@ -65,11 +65,6 @@ export const chatService = {
       );
       const parsed = ItinerarySchema.parse(response.data);
       const elapsedMs = Math.round(performance.now() - startedAt);
-      console.debug("[chatService.getItinerary] success", {
-        chatId,
-        elapsedMs,
-        status: response.status,
-      });
       return parsed;
     } catch (error: unknown) {
       const elapsedMs = Math.round(performance.now() - startedAt);
@@ -79,18 +74,9 @@ export const chatService = {
         "response" in error &&
         (error as { response?: { status?: number } }).response?.status === 404
       ) {
-        console.debug("[chatService.getItinerary] empty", {
-          chatId,
-          elapsedMs,
-        });
         return null;
       }
 
-      console.error("[chatService.getItinerary] failed", {
-        chatId,
-        elapsedMs,
-        error,
-      });
       throw error;
     }
   },
