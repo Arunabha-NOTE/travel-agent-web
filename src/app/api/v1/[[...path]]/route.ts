@@ -115,7 +115,7 @@ export async function ANY(
             locationUrl.pathname + locationUrl.search,
           );
         }
-      } catch (error) {
+      } catch (_error) {
         // Skip parsing if Location header is invalid
       }
     }
@@ -124,7 +124,7 @@ export async function ANY(
       status: response.status,
       headers: responseHeaders,
     });
-  } catch (error) {
+  } catch (_error) {
     return new NextResponse(
       JSON.stringify({ message: "Internal Proxy Error" }),
       {

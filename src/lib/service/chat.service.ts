@@ -64,10 +64,10 @@ export const chatService = {
         },
       );
       const parsed = ItinerarySchema.parse(response.data);
-      const elapsedMs = Math.round(performance.now() - startedAt);
+      const _elapsedMs = Math.round(performance.now() - startedAt);
       return parsed;
     } catch (error: unknown) {
-      const elapsedMs = Math.round(performance.now() - startedAt);
+      const _elapsedMs = Math.round(performance.now() - startedAt);
       if (
         error &&
         typeof error === "object" &&

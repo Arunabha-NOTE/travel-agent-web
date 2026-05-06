@@ -7,8 +7,8 @@ import { Icons } from "@/components/icons/icon";
 import { Button } from "@/components/ui/button";
 import { useChatQuery, useCreateChatMutation } from "@/lib/query";
 
-export function AppHeader() {
-  const { PlaneTakeoff, MessageSquare, Plus, Loader2 } = Icons;
+export function AppHeader({ onMenuClick }: { onMenuClick?: () => void }) {
+  const { PlaneTakeoff, MessageSquare, Plus, Loader2, Menu } = Icons;
   const router = useRouter();
   const params = useParams();
   const chatId = params.chatId as string | undefined;
@@ -23,15 +23,28 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-40 shrink-0 border-b border-selection/60 bg-background-dark/80 backdrop-blur-xl">
-      <div className="flex w-full items-center justify-between px-6 py-3">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
-            <PlaneTakeoff aria-hidden="true" className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-sm font-semibold tracking-tight text-white">
-            TravelAI
-          </span>
-        </Link>
+      <div className="flex w-full items-center justify-between px-4 py-3 md:px-6">
+        <div className="flex items-center gap-2 md:gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="lg:hidden h-8 w-8 px-0"
+            onClick={onMenuClick}
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle Menu</span>
+          </Button>
+
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary shrink-0">
+              <PlaneTakeoff aria-hidden="true" className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-sm font-semibold tracking-tight text-white hidden sm:inline-block">
+              TravelAI
+            </span>
+          </Link>
+        </div>
 
         {chat && (
           <div className="hidden items-center gap-2 rounded-full border border-selection/60 bg-surface/20 px-3 py-1.5 text-xs text-foreground/80 md:flex">

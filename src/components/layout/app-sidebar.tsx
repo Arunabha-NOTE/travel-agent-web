@@ -39,8 +39,14 @@ import {
 } from "@/lib/query";
 import { cn } from "@/lib/utils";
 
-export function AppSidebar() {
-  const { Loader2, LogOut, PencilLine, Plus, Search, Trash2, UserCircle2 } =
+export function AppSidebar({
+  isOpen,
+  onClose,
+}: {
+  isOpen?: boolean;
+  onClose?: () => void;
+}) {
+  const { Loader2, LogOut, PencilLine, Plus, Search, Trash2, UserCircle2, X } =
     Icons;
 
   const router = useRouter();
@@ -113,21 +119,55 @@ export function AppSidebar() {
 
   return (
     <>
-      <aside className="surface-panel hidden w-[280px] shrink-0 lg:flex h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem]">
+      {/* Mobile backdrop */}
+      {isOpen && (
+        // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop
+        // biome-ignore lint/a11y/noStaticElementInteractions: backdrop
+        <div
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={cn(
+          "surface-panel w-[280px] shrink-0 h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem] z-50 transition-transform",
+          isOpen
+            ? "fixed left-4 top-4 bottom-4 flex"
+            : "hidden lg:flex lg:relative",
+        )}
+      >
         <div className="border-b border-selection/70 p-4">
-          <Button
-            type="button"
-            className="w-full justify-center gap-2"
-            disabled={createChatMutation.isPending}
-            onClick={() => void onCreateChat()}
-          >
-            {createChatMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Plus className="h-4 w-4" />
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              className="flex-1 justify-center gap-2"
+              disabled={createChatMutation.isPending}
+              onClick={() => {
+                void onCreateChat();
+                onClose?.();
+              }}
+            >
+              {createChatMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+              New chat
+            </Button>
+            {isOpen && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="shrink-0 lg:hidden"
+                onClick={onClose}
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close sidebar</span>
+              </Button>
             )}
-            New chat
-          </Button>
+          </div>
         </div>
 
         <div className="space-y-3 border-b border-selection/70 px-4 py-4">
@@ -182,7 +222,11 @@ export function AppSidebar() {
                       : "border-selection/40 bg-surface/10 hover:bg-surface/30",
                   )}
                 >
-                  <Link href={`/chat/${chat.id}`} className="block">
+                  <Link
+                    href={`/chat/${chat.id}`}
+                    className="block"
+                    onClick={() => onClose?.()}
+                  >
                     <p className="truncate text-sm font-medium text-foreground">
                       {stripThinkTags(chat.title)}
                     </p>

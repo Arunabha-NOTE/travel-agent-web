@@ -35,7 +35,7 @@ export function useItineraryQuery(chatId?: string, liveUpdates = false) {
         return null;
       }
 
-      const days = Array.isArray(data.itinerary_data?.days)
+      const _days = Array.isArray(data.itinerary_data?.days)
         ? data.itinerary_data.days.length
         : 0;
       return data;
@@ -154,11 +154,8 @@ export function useSendMessage(chatId?: string) {
             setStreamingContent(accumulated);
             if (streamingIdleTimerRef.current) {
               clearTimeout(streamingIdleTimerRef.current);
+              streamingIdleTimerRef.current = null;
             }
-            streamingIdleTimerRef.current = setTimeout(() => {
-              // Only clear if we are not still decoding (e.g. slow network)
-              setIsStreaming(false);
-            }, 3500); // Increased buffer for slow tool usage/thought blocks
           }
         }
 
@@ -203,7 +200,11 @@ export function useSendMessage(chatId?: string) {
           }),
         ]);
 
-        await refreshPromise;
+        try {
+          await refreshPromise;
+        } catch (e) {
+          console.error("Failed to refresh queries after message", e);
+        }
 
         setIsPending(false);
         setIsStreaming(false);

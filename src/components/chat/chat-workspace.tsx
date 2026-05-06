@@ -44,7 +44,7 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
 
   return (
     <div className="flex h-full min-h-0 gap-4">
-      <section className="surface-panel flex flex-1 h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem]">
+      <section className="surface-panel flex flex-1 h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem] relative">
         <div className="flex h-full flex-col">
           {isChatLoading ? (
             <div className="flex flex-1 items-center justify-center px-6">
@@ -79,8 +79,20 @@ export function ChatWorkspace({ selectedChatId }: ChatWorkspaceProps) {
 
           {!isChatLoading && !isChatError && activeChat ? (
             <>
+              {/* Mobile Itinerary Toggle Button */}
+              <div className="absolute top-4 right-4 z-10 lg:hidden">
+                <button
+                  type="button"
+                  className="flex items-center gap-2 rounded-full border border-selection/60 bg-background/80 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-foreground shadow-sm transition-colors hover:bg-surface/50"
+                  onClick={() => setIsItineraryFullscreen(true)}
+                >
+                  <Icons.Map className="h-3.5 w-3.5 text-primary" />
+                  Itinerary
+                </button>
+              </div>
+
               <div className="flex-1 overflow-y-auto">
-                <div className="w-full h-full">
+                <div className="w-full h-full relative">
                   {isMessagesLoading ? (
                     <div className="flex h-full items-center justify-center p-8 text-sm text-muted">
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />

@@ -36,9 +36,7 @@ export default async function PublicItineraryPage({
         </div>
 
         <footer className="mt-6 text-center">
-          <p className="text-[10px] text-white/20">
-            Created with Travel AI
-          </p>
+          <p className="text-[10px] text-white/20">Created with Travel AI</p>
         </footer>
       </div>
     </main>
